@@ -83,7 +83,7 @@ module human_hand(L, wrist_r, ft = 1, curl = 1) {
     wr   = flat ? wrist_r : [wrist_r, wrist_r];
     hull() {
         // a flat band already reaches the wrist, so its stub is short; a bulb needs reach
-        translate([flat ? -0.12 * s : -0.30 * s, 0, 0]) ellipsoid([wr[0], wr[0], wr[1]]);
+        translate([flat ? -0.12 * s : -0.30 * s, 0, 0]) ellipsoid(flat ? [wr[0] * 0.9, wr[0] * 0.9, wr[1] * 0.9] : [wr[0], wr[0], wr[1]]);
         translate([-0.06 * s, 0, 0]) ellipsoid([0.10 * s, ww / 2, wt / 2]);
     }
     // bony wrist knob on the thumb side
@@ -129,8 +129,9 @@ module human_hand(L, wrist_r, ft = 1, curl = 1) {
 // ---------------------------------------------------------------------------
 //  Robot hand.  Same frame as human_hand.
 // ---------------------------------------------------------------------------
-module robot_hand(L, wrist_r, ft = 1, curl = 1) {
+module robot_hand(L, wrist_r, ft_in = 1, curl = 1) {
     s  = L;
+    ft = ft_in * 1.25;                               // mechanical fingers are stouter than flesh
     pl = 0.46 * s;  pw = 0.44 * s;  pt = 0.17 * s;
     ww = 0.32 * s;  wt = 0.24 * s;
     gw = 0.018 * s;                                  // panel-groove width

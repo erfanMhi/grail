@@ -19,7 +19,7 @@
 // bangle = wrist cuff, ring = finger ring, custom = use the "Custom sizing" values
 preset = "bangle"; // ["bangle", "ring", "custom"]
 // What to render / export
-part = "assembly"; // ["assembly", "band", "human_hand", "robot_hand"]
+part = "assembly"; // ["assembly", "band", "hands", "human_hand", "robot_hand"]
 
 /* [Custom sizing (preset = "custom")] */
 // Inside diameter measured at the thin back of the band
@@ -40,13 +40,13 @@ custom_tip_gap = 3;
 /* [Pose] */
 // 0 = each hand continues the band's curve, 1 = each hand points straight across the opening.
 // The hands are lengthened so the index tips still end up tip_gap apart.
-wrist_bend = 0.55;
+wrist_bend = 0.7;
 // Droop of the hands below the band plane (deg)
 hand_pitch = 8;
 // Twist of the hands about their own forearm axis (deg)
 hand_roll = 0;
 // Multiplier on the curl of the three tucked fingers
-finger_curl = 1.25;
+finger_curl = 1.4;
 // Multiplier on finger diameters (thicken small pieces so they cast/print). Ring preset uses 1.5
 custom_finger_thickness = 1.0;
 // Degrees of band on each side over which it swells into the wrist
@@ -54,13 +54,13 @@ swell_span = 45;
 
 /* [Surface] */
 // Soft organic undulation of the band's outer surface, as a fraction of its radius (0 = perfectly even)
-hammer = 0.06;
+hammer = 0.08;
 hammer_seed = 7;
 // Number of hammer dimples planished into the outside of the band (0 = none; they cost render time)
 custom_dimples = 0;
 // Dimple size and depth as fractions of the band's radial half-thickness
-dimple_size = 0.8;
-dimple_depth = 0.12;
+dimple_size = 1.0;
+dimple_depth = 0.2;
 dimple_seed = 3;
 
 /* [Quality] */
@@ -73,10 +73,10 @@ band_segments = 72;
 //  Derived sizing
 // ---------------------------------------------------------------------------
 inner_d  = preset == "bangle" ? 62  : preset == "ring" ? 17.3 : custom_inner_diameter;
-band_t   = preset == "bangle" ? 5   : preset == "ring" ? 2.2  : custom_band_thickness;
-band_w   = preset == "bangle" ? 5   : preset == "ring" ? 2.8  : custom_band_width;
+band_t   = preset == "bangle" ? 5   : preset == "ring" ? 2.7  : custom_band_thickness;
+band_w   = preset == "bangle" ? 5   : preset == "ring" ? 2.9  : custom_band_width;
 swell_t  = preset == "bangle" ? 8   : preset == "ring" ? 3.3  : custom_band_swell;
-gap_a    = preset == "bangle" ? 95  : preset == "ring" ? 108  : custom_gap_angle;
+gap_a    = preset == "bangle" ? 95  : preset == "ring" ? 116  : custom_gap_angle;
 tip_gap  = preset == "bangle" ? 3   : preset == "ring" ? 0.8  : custom_tip_gap;
 finger_thickness = preset == "bangle" ? 1.0 : preset == "ring" ? 1.15 : custom_finger_thickness;
 human_end   = preset == "bangle" ? "bulb" : preset == "ring" ? "forearm" : custom_human_end;
@@ -92,7 +92,7 @@ function smooth(u) = u * u * (3 - 2 * u);
 // side +1 = human end (th_start), -1 = robot end (th_end)
 function end_prof(side) =
     side < 0 || human_end == "bulb" ? [swell_t / 2, swell_t / 2]
-                                    : [band_t / 2 * 1.12, band_w / 2 * 1.18];   // forearm: fuller than the band
+                                    : [band_t / 2 * 1.05, band_w / 2 * 1.12];   // forearm: a little fuller than the band
 back_prof = [band_t / 2, band_w / 2];
 // Band profile at polar angle th: back profile, morphing into each end profile over swell_span
 function band_r(th) =
@@ -191,13 +191,15 @@ module place_hand(side) {
         }
 }
 
-module assembly() {
-    band();
+module assembly() { band(); hands(); }
+
+module hands() {
     place_hand(+1) human_hand(hand_len(+1), wrist_r(+1), finger_thickness, finger_curl);
     place_hand(-1) robot_hand(hand_len(-1), wrist_r(-1), finger_thickness, finger_curl);
 }
 
 if (part == "assembly")        assembly();
 else if (part == "band")       band();
+else if (part == "hands")      hands();   // both hands in place, no band (fast partial export)
 else if (part == "human_hand") human_hand(hand_len(+1), wrist_r(+1), finger_thickness, finger_curl);
 else if (part == "robot_hand") robot_hand(hand_len(-1), wrist_r(-1), finger_thickness, finger_curl);

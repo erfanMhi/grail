@@ -93,23 +93,23 @@ openscad -o my_cuff.stl -D '$fn=48' -D 'preset="custom"' \
 | Parameter | Bangle | Ring | Meaning |
 |---|---|---|---|
 | `preset` | `"bangle"` | `"ring"` | `"custom"` uses the `custom_*` values below |
-| `part` | `"assembly"` | | `"band"`, `"human_hand"`, `"robot_hand"` export one piece |
+| `part` | `"assembly"` | | `"band"`, `"human_hand"`, `"robot_hand"` export one piece; `"hands"` both hands in place without the band |
 | `custom_inner_diameter` | 62 | 17.3 | Inside diameter at the thin back of the band |
-| `custom_band_thickness` | 5 | 2.2 | Radial thickness of the band at the back |
-| `custom_band_width` | 5 | 2.8 | Axial width of the band at the back (equal to thickness for a round band) |
+| `custom_band_thickness` | 5 | 2.7 | Radial thickness of the band at the back |
+| `custom_band_width` | 5 | 2.9 | Axial width of the band at the back (equal to thickness for a round band) |
 | `custom_band_swell` | 8 | 3.3 | Diameter of the bulb the robot hand grows out of |
 | `custom_human_end` | `"bulb"` | `"forearm"` | Human side ends in a matching bulb, or the band tapers into the forearm |
 | `custom_dimples` | 0 | 96 | Hammer marks planished into the outside of the band (each is a boolean, so they cost render time) |
-| `dimple_size`, `dimple_depth` | 0.8, 0.12 | | Dimple radius and depth as fractions of the band's radial half-thickness |
-| `custom_gap_angle` | 95° | 108° | Opening between the band ends; the hands are sized to fill it |
+| `dimple_size`, `dimple_depth` | 1.0, 0.2 | | Dimple radius and depth as fractions of the band's radial half-thickness |
+| `custom_gap_angle` | 95° | 116° | Opening between the band ends; the hands are sized to fill it |
 | `custom_tip_gap` | 3 | 0.8 | Space left between the two fingertips |
-| `custom_finger_thickness` | 1.0 | 1.15 | Multiplier on finger diameters; the ring's fingers are about 1 mm like the reference |
-| `wrist_bend` | 0.55 | | 0 = hands continue the band's curve, 1 = they point straight across; the hands are lengthened so the tips still meet |
+| `custom_finger_thickness` | 1.0 | 1.15 | Multiplier on finger diameters; the ring's human fingers are about 1 mm like the reference, the robot's are 1.25× stouter |
+| `wrist_bend` | 0.7 | | 0 = hands continue the band's curve, 1 = they point straight across; the hands are lengthened so the tips still meet |
 | `hand_pitch` | 8° | | Droop of the hands below the band plane |
 | `hand_roll` | 0° | | Twist of each hand about its forearm |
-| `finger_curl` | 1.25 | | Scales how tightly the three tucked fingers curl |
+| `finger_curl` | 1.4 | | Scales how tightly the three tucked fingers curl |
 | `swell_span` | 45° | | Length of band, per side, over which it fattens into the wrist |
-| `hammer` | 0.06 | | Soft organic undulation of the band's outer surface, as a fraction of its radius (0 = perfectly even) |
+| `hammer` | 0.08 | | Soft organic undulation of the band's outer surface, as a fraction of its radius (0 = perfectly even) |
 | `$fn` | 28 | | Facets per circle; use 48–64 for the final export |
 
 The hands are **derived**: each one heads out along the band's tangent, bent
@@ -167,6 +167,15 @@ grows outward only, so the fit is not affected by it.
   *Import Mesh* + *Mesh to BRep* tools in Fusion 360. The model is a
   faceted solid by nature, so bump `$fn` before doing this.
 * **3MF / OBJ**: OpenSCAD exports these directly (`-o file.3mf`).
+
+## Matching the reference
+
+The ring preset was tuned by rendering the model in silver from the photo's
+angle and comparing side by side, four rounds: band girth and section,
+hammer depth, how directly the hands aim across the opening, fist tightness,
+finger gauge (human about 1 mm, robot stouter). Re-run that loop after any
+change with `part="band"` and `part="hands"` exported in parallel at a low
+`$fn`; the two STLs concatenate straight into a viewer.
 
 ## Regenerating
 
