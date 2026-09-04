@@ -90,7 +90,8 @@
       <h1>Creation Ring <em>&amp; Creation Cuff</em></h1>
     </div>
     <div class="seg" role="group" aria-label="Model">
-      <button data-model="cring" aria-pressed="true">Ring · arms as band</button>
+      <button data-model="smooth" aria-pressed="true">Smooth ring · SDF</button>
+      <button data-model="cring" aria-pressed="false">Ring · arms as band</button>
       <button data-model="bangle" aria-pressed="false">Cuff · Ø 62 mm</button>
       <button data-model="ring" aria-pressed="false">Hammered ring · US 7</button>
     </div>
@@ -139,6 +140,9 @@
 <script>
 const MODELS = __MODELS_JSON__;
 const SPECS = {
+  smooth: { rows: [["Inner diameter, back", "17.3 mm"], ["Band, hammered oval", "2.7 × 2.9 mm"], ["Opening", "116°"],
+    ["Hand, wrist → index tip", "8.5 mm"], ["Fingertip gap", "0.8 mm"], ["Modelling", "signed-distance field, smooth unions"]],
+    legend: [["Left", "robotic hand: ringed finger segments, ball knuckles, rivet domes, fist tucked under a domed palm"], ["Right", "human hand: fleshy forearm into the palm, relaxed fingers, thumb tucked toward the index"], ["Band", "oval section with planished hammer marks, flowing straight into both wrists"]] },
   cring:  { rows: [["Inside, across flats", "17.3 mm"], ["Band width (axial)", "4.8 mm"], ["Band thickness, wrist → belly", "1.5 → 2.6 mm"],
     ["Corner exponent", "4.5"], ["Hand, wrist → index tip", "11.6 mm"], ["Fingertip gap", "≈ 0.9 mm"], ["Thinnest feature (pinky tip)", "0.89 mm"], ["Engraving", "“925”, 0.15 mm deep"]],
     legend: [["Left", "robotic hand along the bottom side, bellows collar, pinned knuckles"], ["Right", "human hand up the right side, index extended, fingers drooping"], ["Band", "two forearms, flat and engraved inside, crossing at the back corner"]] },
@@ -215,7 +219,7 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x2a2d33, 0.15));
 // ---- model
 const group = new THREE.Group();
 scene.add(group);
-let mesh = null, wire = null, radius = 40, current = "cring";
+let mesh = null, wire = null, radius = 40, current = "smooth";
 const geoms = {};
 function load(kind) {
   if (!geoms[kind]) geoms[kind] = parseMesh(MODELS[kind]);
@@ -297,6 +301,6 @@ document.querySelectorAll(".metals button").forEach(b => b.onclick = () => setMe
 document.querySelectorAll(".views .btn").forEach(b => b.onclick = () => setView(b.dataset.view));
 
 document.querySelectorAll(".seg button[data-model]").forEach(b => { if (!MODELS[b.dataset.model]) b.hidden = true; });
-load(MODELS.cring ? "cring" : Object.keys(MODELS)[0]);
+load(MODELS.smooth ? "smooth" : MODELS.cring ? "cring" : Object.keys(MODELS)[0]);
 frame();
 </script>

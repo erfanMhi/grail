@@ -32,7 +32,7 @@ def ascii_to_indexed(path):
 
 models = {}
 ONLY = sys.argv[3].split(',') if len(sys.argv) > 3 else None
-FILES = [('cring', 'creation_ring.stl'), ('bangle', 'creation_cuff_bangle.stl'), ('ring', 'creation_cuff_ring.stl')]
+FILES = [('smooth', 'creation_ring_implicit.stl'), ('cring', 'creation_ring.stl'), ('bangle', 'creation_cuff_bangle.stl'), ('ring', 'creation_cuff_ring.stl')]
 if len(sys.argv) > 4:   # KEY=path overrides
     FILES = [(kv.split('=')[0], kv.split('=')[1]) for kv in sys.argv[4].split(',')]
 for key, fn in FILES:
