@@ -1,15 +1,27 @@
-# Creation Cuff — parametric CAD template
+# Creation Cuff & Creation Ring — parametric CAD templates
 
-An open round band whose two ends swell into wrists, from which a **segmented
-robotic hand** (left) and an **organic human hand** (right) reach toward each
-other across the opening, index fingers almost touching — the *Creation of
-Adam* gesture. Modelled after the silver bangle reference photo.
+Two pieces built from the same pair of hands: a **segmented robotic left hand**
+and an **organic human right hand** reaching for each other, index fingers
+almost touching — the *Creation of Adam* gesture.
 
-| Bangle preset | Ring preset |
+* **Creation Ring** (`creation_ring.scad`) — a rounded-square ring whose band
+  is the two forearms: flat and engraved inside, muscular outside, crossing at
+  the back corner. The hands run along two adjacent sides and meet at the
+  front corner; the fingers droop below the band. Modelled after the silver
+  S925 ring reference, with the left hand swapped for the robot's.
+* **Creation Cuff** (`creation_cuff.scad`) — an open round bangle (or ring)
+  whose ends swell into wrists, from which the hands reach across the opening.
+  Modelled after the hammered bangle reference.
+
+| Creation Ring | Ring, top | Ring, side |
+|---|---|---|
+| ![ring](export/creation_ring.png) | ![ring top](export/creation_ring_top.png) | ![ring side](export/creation_ring_side.png) |
+
+| Cuff, bangle preset | Cuff, ring preset |
 |---|---|
 | ![bangle](export/creation_cuff_bangle.png) | ![ring](export/creation_cuff_ring.png) |
 
-| Top | Front |
+| Cuff, top | Cuff, front |
 |---|---|
 | ![top](export/creation_cuff_top.png) | ![front](export/creation_cuff_front.png) |
 
@@ -17,8 +29,14 @@ Adam* gesture. Modelled after the silver bangle reference photo.
 
 | File | What it is |
 |---|---|
-| `creation_cuff.scad` | The whole model, fully parametric. Open in [OpenSCAD](https://openscad.org) (free). |
+| `creation_ring.scad` | The rounded-square ring. Open in [OpenSCAD](https://openscad.org) (free). |
+| `creation_cuff.scad` | The open bangle / round ring. |
+| `hands.scad` | The two hands, shared by both models (`use <hands.scad>`). |
 | `Makefile` | `make` regenerates every STL and preview below. |
+| `export/creation_ring.stl` | Ring, one solid piece (inner 17.3 mm across flats ≈ US 7). |
+| `export/creation_ring_band.stl` | Ring band (both arms) only, for separate casting. |
+| `export/creation_ring_human_hand.stl` | Ring's human hand only, wrist at the origin, fingers along +X. |
+| `export/creation_ring_robot_hand.stl` | Ring's robot hand only, same frame. |
 | `export/creation_cuff_bangle.stl` | Wrist cuff, one solid piece (inner Ø 62 mm). |
 | `export/creation_cuff_ring.stl` | Finger ring, one solid piece (inner Ø 17.3 mm ≈ US size 7). |
 | `export/creation_cuff_bangle_band.stl` | Band only, for casting the pieces separately. |
@@ -28,10 +46,42 @@ Adam* gesture. Modelled after the silver bangle reference photo.
 All meshes are watertight single solids in millimetres, ready for resin
 printing / lost-wax casting or import into Rhino, Fusion, Blender, etc.
 
-## Presets and knobs
+## Creation Ring knobs
 
 Everything lives in the *Customizer* panel of OpenSCAD (Window → Customizer),
 or can be set from the shell with `-D`:
+
+```sh
+openscad -o my_ring.stl -D '$fn=64' -D inner_d=18.1 -D 'inner_text="S925"' creation_ring.scad
+```
+
+| Parameter | Default | Meaning |
+|---|---|---|
+| `part` | `"assembly"` | `"band"`, `"human_hand"`, `"robot_hand"` export one piece |
+| `inner_d` | 17.3 | Inside size across the flats (see the ring-size chart) |
+| `band_w` | 4.8 | Axial width of the band, how tall it sits on the finger |
+| `band_t` | 1.5 | Radial thickness at the wrists, the thinnest point |
+| `arm_bulge` | 2.6 | Radial thickness at the belly of each forearm |
+| `squareness` | 4.5 | Corner shape: 2 is a circle, 4 a squircle, 6 nearly square |
+| `tip_gap` | 0.9 | Space left between the two index fingertips |
+| `finger_thickness` | 1.2 | Multiplier on finger diameters, for castability |
+| `wrist_shift` | 20° | How far past the wrist corners the hands start; bigger = shorter hands |
+| `hand_roll` | 28° | Back of each hand tilted outward from the ring axis |
+| `hand_pitch` | 0° | Droop of the whole hand below the band plane |
+| `hand_yaw_in` | 8° | Each hand aimed inward so the index tips converge at the corner |
+| `finger_curl` | 1.0 | Scales how tightly the three tucked fingers curl |
+| `inner_text` | `"925"` | Engraved on the inside of the left side, empty for none |
+| `text_depth` | 0.15 | Engraving depth |
+| `tendons` | true | Tendon ridge along the back of each forearm |
+| `cross_offset` | 0.9 | Axial offset of the two arms where they cross at the back |
+| `$fn` | 32 | Facets per circle; 48–64 for the final export |
+
+The band's inner face is a true superellipse of `inner_d` across the flats;
+the muscle swells grow outward only, so sizing is unaffected by them. Hand
+length is derived from the corner-to-wrist distance, so a bigger ring gets
+bigger hands automatically.
+
+## Creation Cuff knobs
 
 ```sh
 openscad -o my_cuff.stl -D '$fn=48' -D 'preset="custom"' \
@@ -72,9 +122,15 @@ Set `custom_inner_diameter` to the inside diameter of the size you need:
 The inner face is a true circle of that diameter all the way round; the swell
 grows outward only, so the fit is not affected by it.
 
-## How the model is built
+## How the models are built
 
-* **Band** — a sweep of hulled spheres around an arc of `360 − gap` degrees.
+* **Ring band** — two sweeps of hulled ellipsoids along a superellipse
+  (`|x/a|^n + |y/a|^n = 1`), one per arm, each thickening to a belly and
+  thinning to the wrist, with a tendon ridge along the outside. The inner
+  bore is subtracted afterwards so the inside is a flat, engravable face.
+  The arms drift apart axially as they approach the back corner so they read
+  as crossing.
+* **Cuff band** — a sweep of hulled spheres around an arc of `360 − gap` degrees.
   The sphere radius follows a smooth-step from `band_thickness/2` at the back
   to `band_swell/2` at each end, and a seeded random jitter gives the
   hammered surface. Because the sphere centres sit at `inner_radius + r`, the
@@ -86,8 +142,10 @@ grows outward only, so the fit is not affected by it.
   panel grooves and a raised back plate, pinned knuckle joints, and fingers
   made of tapered tubes with washers at each pin and a groove on each phalanx.
 * **Posing** — both hands share one frame (wrist at origin, fingers +X, thumb
-  +Y, back of hand +Z). The right hand is yawed to point at the meeting point;
-  the left hand is mirrored so both thumbs face the wearer's front.
+  +Y, back of hand +Z). Each hand is yawed to point at the meeting point and
+  the left hand is mirrored so it is a true left hand. On the ring the hands
+  are additionally rolled so the backs face outward and the fingers droop
+  down and inward, as in the reference.
 
 ## Exporting other formats
 
@@ -103,4 +161,5 @@ grows outward only, so the fit is not affected by it.
 cd cad/creation_cuff
 make            # all STLs and PNGs, $fn=36
 make FN=64 stl  # higher-resolution meshes only
+make export/creation_ring.stl   # just the ring
 ```
