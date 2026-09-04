@@ -14,7 +14,28 @@ import sys
 MIN_VERTS = 64
 
 
+def binary_to_ascii(path):
+    """Rewrite a binary STL as ASCII in place so the line-based cleaner can read it."""
+    import struct
+    raw = open(path, "rb").read()
+    if raw[:5] == b"solid" and b"facet" in raw[:2000]:
+        return
+    n = struct.unpack_from("<I", raw, 80)[0]
+    out = ["solid OpenSCAD_Model\n"]
+    off = 84
+    for _ in range(n):
+        f = struct.unpack_from("<12f", raw, off)
+        off += 50
+        out.append("  facet normal %g %g %g\n    outer loop\n" % f[0:3])
+        for k in (3, 6, 9):
+            out.append("      vertex %.6g %.6g %.6g\n" % f[k:k + 3])
+        out.append("    endloop\n  endfacet\n")
+    out.append("endsolid OpenSCAD_Model\n")
+    open(path, "w").write("".join(out))
+
+
 def clean(path):
+    binary_to_ascii(path)
     facets, cur, verts = [], [], {}
     for line in open(path):
         s = line.strip()

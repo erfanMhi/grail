@@ -75,10 +75,15 @@ IMPLICIT_EXPORT := node $(HOME)/.claude/skills/implicit-cad/scripts/export.mjs
 implicit: $(OUT)/creation_ring_implicit.stl
 $(IMPL)/creation_ring.implicit.js: $(IMPL)/build_model.mjs $(IMPL)/parts/*.mjs
 	cd $(IMPL) && node build_model.mjs
+# gen meshes on all cores and writes a sibling GLB; glb2stl.py turns it into a binary STL
+IMPLICIT_GEN := cd $(HOME)/.claude/skills/implicit-cad && python3 scripts/gen
 $(OUT)/creation_ring_implicit.stl: $(IMPL)/creation_ring.implicit.js
-	$(IMPLICIT_EXPORT) --input $< --stl $@ --3mf $(OUT)/creation_ring_implicit.3mf --resolution $(IRES) --max-cells 40000000
+	$(IMPLICIT_GEN) $(abspath $<) --write --resolution $(IRES) --threads $(ITHREADS) --force
+	python3 $(IMPL)/glb2stl.py $(IMPL)/creation_ring.glb $@
 	$(CLEAN) $@
+	$(IMPLICIT_EXPORT) --input $< --3mf $(OUT)/creation_ring_implicit.3mf --resolution $(IRES) --max-cells 40000000
 IRES ?= 220
+ITHREADS ?= 4
 
 clean:
 	rm -f $(STLS) $(PNGS)

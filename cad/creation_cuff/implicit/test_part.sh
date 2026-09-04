@@ -7,7 +7,9 @@ PART=${1:-all}; RES=${2:-110}
 node build_model.mjs $PART
 MODEL=$([ $PART = all ] && echo creation_ring.implicit.js || echo test_$PART.implicit.js)
 OUT=review/$PART; mkdir -p $OUT
-node ~/.claude/skills/implicit-cad/scripts/export.mjs --input $MODEL --stl $OUT/mesh.stl --resolution $RES --max-cells 12000000 2>&1 | grep -iE "error|fail|wrote|stl" || true
+# multi-threaded mesher (cadgen gen) -> sibling GLB -> binary STL
+( cd ~/.claude/skills/implicit-cad && python3 scripts/gen "$OLDPWD/$MODEL" --write --resolution $RES --threads ${THREADS:-4} --force 2>&1 | grep -iE "error|fail|generated|wrote" ) || true
+python3 glb2stl.py "${MODEL%.implicit.js}.glb" $OUT/mesh.stl
 if [ $PART = all ]; then
   SHOTS='[["ring","photo","photo",[-1.5708,0.85,3.7]],["ring","photo","top",[-1.5708,0.05,3.7]],["ring","photo","front",[-1.5708,1.45,3.7]],["ring","robot","robot"],["ring","human","human"]]'
 else

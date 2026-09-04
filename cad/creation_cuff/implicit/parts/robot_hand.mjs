@@ -21,12 +21,12 @@ import { P, f, vec3, fingerChain, rotXYZ, add, sub, mul, matMul, norm, dot, hand
 const col = (R, j) => [R[0][j], R[1][j], R[2][j]];
 
 export function glsl(L) {
-  const s = L, ft = P.fingerThickness * 1.25, c = P.fingerCurl;
+  const s = L, ft = P.fingerThickness * 1.25, c = P.fingerCurl * 0.85;   // a looser fist than the human's curl so the segments stay legible
   const pl = 0.46 * s, pw = 0.44 * s, pt = 0.19 * s, ww = 0.32 * s, wt = 0.24 * s;
   const gw = 0.018 * s;                    // seam width (hands.scad)
-  const kt = 0.90, kb = 1.10;              // tube / ball radius factors (a touch more contrast than hands.scad)
-  const bandH = 0.008 * s;                 // how far a ring band stands proud of the tube
-  const bandHalf = gw * 0.9;               // ring band half-width along the segment
+  const kt = 0.94, kb = 1.02;              // tube / ball radius factors: joints read as subtle balls, not marbles
+  const bandH = 0.02 * s;                  // how far a ring band stands proud of the tube (about 0.17 mm)
+  const bandHalf = gw * 1.1;               // ring band half-width along the segment
   const rivetR = gw * 1.4;                 // rivet dome radius
   const rMachined = 0.12, rRing = 0.04, rRivet = 0.05, rFinger = 0.05;
   const boundMargin = 0.7, detailMargin = 0.5;
