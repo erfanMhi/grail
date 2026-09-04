@@ -84,8 +84,6 @@ module human_hand(L, wrist_r, ft = 1, curl = 1) {
         translate([flat ? -0.12 * s : -0.30 * s, 0, 0]) ellipsoid(flat ? [wr[0] * 0.9, wr[0] * 0.9, wr[1] * 0.9] : [wr[0], wr[0], wr[1]]);
         translate([-0.06 * s, 0, 0]) ellipsoid([0.10 * s, ww / 2, wt / 2]);
     }
-    // bony wrist knob on the thumb side
-    translate([-0.02 * s, ww * 0.45, wt * 0.15]) sphere(wt * 0.28);
     // palm
     hull() {
         ellipsoid([0.12 * s, ww / 2, wt / 2]);
@@ -103,8 +101,8 @@ module human_hand(L, wrist_r, ft = 1, curl = 1) {
     for (y = [0.36, 0.12, -0.12, -0.36] * pw)
         for (seg = [[0.18, 0.55, 0.30, 0.80], [0.30, 0.80, 0.44, 1.0]]) hull() {
             x0 = seg[0] * s; y0 = y * seg[1]; x1 = seg[2] * s; y1 = y * seg[3];
-            translate([x0, y0, back_z(x0, y0) - 0.006 * s]) sphere(0.016 * s);
-            translate([x1, y1, back_z(x1, y1) - 0.006 * s]) sphere(0.017 * s);
+            translate([x0, y0, back_z(x0, y0) - 0.008 * s]) sphere(0.015 * s);
+            translate([x1, y1, back_z(x1, y1) - 0.008 * s]) sphere(0.016 * s);
         }
 
     fy = [0.36, 0.12, -0.12, -0.36] * pw;
