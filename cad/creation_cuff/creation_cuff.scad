@@ -53,11 +53,15 @@ custom_finger_thickness = 1.0;
 swell_span = 45;
 
 /* [Surface] */
-// Random hammered relief on the outside of the band, as a fraction of the band radius (0 = smooth)
-hammer = 0.07;
+// Soft organic undulation of the band's outer surface, as a fraction of its radius (0 = perfectly even)
+hammer = 0.06;
 hammer_seed = 7;
-// Facets per circle used for the band alone; low values (12-16) give planished, hammered facets. 0 = use $fn
-custom_band_facets = 0;
+// Number of hammer dimples planished into the outside of the band (0 = none; they cost render time)
+custom_dimples = 0;
+// Dimple size and depth as fractions of the band's radial half-thickness
+dimple_size = 0.8;
+dimple_depth = 0.12;
+dimple_seed = 3;
 
 /* [Quality] */
 // Facets per circle. 24 previews fast, 48+ for the final export
@@ -69,14 +73,14 @@ band_segments = 72;
 //  Derived sizing
 // ---------------------------------------------------------------------------
 inner_d  = preset == "bangle" ? 62  : preset == "ring" ? 17.3 : custom_inner_diameter;
-band_t   = preset == "bangle" ? 5   : preset == "ring" ? 2.6  : custom_band_thickness;
-band_w   = preset == "bangle" ? 5   : preset == "ring" ? 3.6  : custom_band_width;
-swell_t  = preset == "bangle" ? 8   : preset == "ring" ? 3.9  : custom_band_swell;
+band_t   = preset == "bangle" ? 5   : preset == "ring" ? 2.2  : custom_band_thickness;
+band_w   = preset == "bangle" ? 5   : preset == "ring" ? 2.8  : custom_band_width;
+swell_t  = preset == "bangle" ? 8   : preset == "ring" ? 3.3  : custom_band_swell;
 gap_a    = preset == "bangle" ? 95  : preset == "ring" ? 108  : custom_gap_angle;
 tip_gap  = preset == "bangle" ? 3   : preset == "ring" ? 0.8  : custom_tip_gap;
-finger_thickness = preset == "bangle" ? 1.0 : preset == "ring" ? 1.5 : custom_finger_thickness;
+finger_thickness = preset == "bangle" ? 1.0 : preset == "ring" ? 1.15 : custom_finger_thickness;
 human_end   = preset == "bangle" ? "bulb" : preset == "ring" ? "forearm" : custom_human_end;
-band_facets = preset == "bangle" ? 0 : preset == "ring" ? 18 : custom_band_facets;
+dimples     = preset == "bangle" ? 0 : preset == "ring" ? 96 : custom_dimples;
 
 Ri        = inner_d / 2;              // inner radius (constant all the way round)
 th_start  = -90 + gap_a / 2;          // right-hand end of the band (x > 0)
@@ -88,7 +92,7 @@ function smooth(u) = u * u * (3 - 2 * u);
 // side +1 = human end (th_start), -1 = robot end (th_end)
 function end_prof(side) =
     side < 0 || human_end == "bulb" ? [swell_t / 2, swell_t / 2]
-                                    : [max(band_t / 2, band_w * 0.32), band_w * 0.46];
+                                    : [band_t / 2 * 1.12, band_w / 2 * 1.18];   // forearm: fuller than the band
 back_prof = [band_t / 2, band_w / 2];
 // Band profile at polar angle th: back profile, morphing into each end profile over swell_span
 function band_r(th) =
@@ -118,30 +122,57 @@ function hand_len(side)    = let(e = end_pt(side), d = hand_dir(side))
 function tip_pt(side)      = end_pt(side) + hand_len(side) * hand_dir(side);
 
 echo(str("inner Ø ", inner_d, " mm, band ", band_t, " × ", band_w, " mm, bulb Ø ", swell_t, " mm, gap ", gap_a, "°"));
-hammer_mm = hammer * band_t / 2;
+// low-frequency, seed-shifted waves: smooth like a planished surface, never faceted
+function wave(th) = let(k = hammer_seed * 37)
+    0.5 * sin(3 * th + k) + 0.3 * sin(7 * th + 2.3 * k) + 0.2 * sin(13 * th + 5.1 * k);
 min_feature = 2 * 0.032 * finger_thickness * hand_len(1);   // pinky-tip diameter, the thinnest thing in the model
 echo(str("hand length (wrist → index tip) ", hand_len(1), " mm, heading ", hand_yaw(1), "°, tips reach y = ", tip_pt(1)[1], " mm"));
 echo(str("thinnest feature (pinky tip) ", min_feature, " mm"));
-if (min_feature < 0.8)
-    echo("WARNING: thinnest feature is under 0.8 mm - hard to cast/print. Widen custom_gap_angle or scale up.");
+if (min_feature < 0.6)
+    echo("WARNING: thinnest feature is under 0.6 mm - below what most casters accept. Raise custom_finger_thickness.");
 
 use <hands.scad>
 
 // ---------------------------------------------------------------------------
 //  Band
 // ---------------------------------------------------------------------------
-module band_ball(i, rnd) {
+// Profile at th including the organic undulation (radial fully, axial half as much)
+function band_prof(th) = let(r = band_r(th), h = hammer * wave(th))
+    [r[0] * (1 + h), r[1] * (1 + 0.5 * h)];
+
+module band_ball(i) {
     th = th_start + arc * i / band_segments;
-    r  = band_r(th) + [rnd[i], 0];               // hammering jitters the outside only
-    translate(band_c(th, r[0])) scale([r[0], r[0], r[1]])
-        sphere(1, $fn = band_facets > 0 ? band_facets : $fn);
+    r  = band_prof(th);
+    translate(band_c(th, r[0])) scale([r[0], r[0], r[1]]) sphere(1);
+}
+
+// Hammer marks: shallow spheres subtracted from the outer face, each one seated on
+// the surface normal of the oval profile so the rows near the edges bite as deep as
+// the middle row.  Kept clear of the hands.
+module dimple_cutters() {
+    rows = 3;
+    per  = ceil(dimples / rows);
+    rr   = rands(0, 1, rows * per * 3, dimple_seed);
+    a0   = th_start + swell_span * 0.35;
+    a1   = th_end - swell_span * 0.35;
+    for (row = [0 : rows - 1], i = [0 : per - 1]) {
+        k   = row * per + i;
+        th  = a0 + (a1 - a0) * (i + 0.5 + 0.5 * (row % 2) + 0.5 * (rr[3 * k] - 0.5)) / per;
+        r   = band_prof(th);
+        phi = (row - (rows - 1) / 2) * 48 + 20 * (rr[3 * k + 1] - 0.5);   // angle round the profile
+        d   = r[0] * dimple_size * (0.75 + 0.5 * rr[3 * k + 2]);
+        // surface point and outward normal of the ellipse (radial, axial)
+        sp  = [Ri + r[0] + r[0] * cos(phi), r[1] * sin(phi)];
+        nn  = [cos(phi) / r[0], sin(phi) / r[1]] / norm([cos(phi) / r[0], sin(phi) / r[1]]);
+        c   = sp + nn * (d - r[0] * dimple_depth);
+        translate([c[0] * cos(th), c[0] * sin(th), c[1]]) sphere(d, $fn = 24);
+    }
 }
 
 module band() {
-    rnd = rands(-hammer_mm, hammer_mm, band_segments + 1, hammer_seed);
-    for (i = [0 : band_segments - 1]) hull() {
-        band_ball(i, rnd);
-        band_ball(i + 1, rnd);
+    difference() {
+        for (i = [0 : band_segments - 1]) hull() { band_ball(i); band_ball(i + 1); }
+        if (dimples > 0) dimple_cutters();
     }
 }
 

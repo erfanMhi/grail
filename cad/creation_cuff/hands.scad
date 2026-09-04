@@ -35,32 +35,33 @@ module finger_(L, r, curl, nail, i) {
     }
 }
 
-// Mechanical finger: tapered tubes with pinned knuckle joints and panel lines.
-// gpos = where along each phalanx the panel groove sits (vary it between neighbouring
-// fingers so overlapping tubes never share a groove and trap a sliver void)
-module robot_finger(L, r, curl, gw, ft = 1, gpos = 0.5) { robot_finger_(L, r * ft, curl, gw, gpos, 0); }
-module robot_finger_(L, r, curl, gw, gpos, i) {
+// Mechanical finger: tapered tubes, a short knuckle pin at every joint, and an
+// armour plate with two rivets riding on the back of each phalanx.
+module robot_finger(L, r, curl, gw, ft = 1) { robot_finger_(L, r * ft, curl, gw, 0); }
+module robot_finger_(L, r, curl, gw, i) {
     if (i < len(L)) rotate([0, curl[i], 0]) {
-        // knuckle pin (axis = Y) with washers
-        rotate([90, 0, 0]) cylinder(h = r[i] * 1.9, r = r[i] * 1.0, center = true);
-        rotate([90, 0, 0]) cylinder(h = r[i] * 2.2, r = r[i] * 0.42, center = true);
-        // phalanx tube with a panel groove
-        difference() {
-            hull() {
-                xcyl(L[i], r[i], r[i + 1]);
-                translate([L[i], 0, 0]) sphere(r[i + 1]);
-            }
-            translate([L[i] * gpos, 0, 0]) rotate([0, 90, 0]) difference() {
-                cylinder(h = gw, r = r[i] * 1.5, center = true);
-                cylinder(h = gw * 2, r = (r[i] + r[i + 1]) / 2 - gw * 0.6, center = true);
-            }
+        rm = (r[i] + r[i + 1]) / 2;
+        // knuckle pin (axis = Y), just proud of the tube
+        rotate([90, 0, 0]) cylinder(h = r[i] * 1.7, r = r[i] * 0.82, center = true);
+        // phalanx tube
+        hull() {
+            xcyl(L[i], r[i], r[i + 1]);
+            translate([L[i], 0, 0]) sphere(r[i + 1]);
         }
+        // armour plate: a rounded slab on the back, with two rivets
+        pl_len = L[i] * 0.62;  pl_w = rm * 1.5;  pl_t = rm * 0.32;
+        translate([L[i] * 0.5, 0, rm * 0.78]) hull()
+            for (x = [-1, 1], y = [-1, 1])
+                translate([x * (pl_len / 2 - gw), y * (pl_w / 2 - gw), 0])
+                    cylinder(h = pl_t, r = gw, center = true);
+        for (x = [-1, 1])
+            translate([L[i] * 0.5 + x * pl_len * 0.28, 0, rm * 0.94]) sphere(gw * 1.3);
         // conical tip pad
         if (i == len(L) - 1) hull() {
             translate([L[i], 0, 0]) sphere(r[i + 1]);
             translate([L[i] + r[i + 1] * 0.9, 0, -r[i + 1] * 0.1]) sphere(r[i + 1] * 0.45);
         }
-        translate([L[i], 0, 0]) robot_finger_(L, r, curl, gw, gpos, i + 1);
+        translate([L[i], 0, 0]) robot_finger_(L, r, curl, gw, i + 1);
     }
 }
 
@@ -73,7 +74,7 @@ module robot_finger_(L, r, curl, gw, gpos, i) {
 // ---------------------------------------------------------------------------
 module human_hand(L, wrist_r, ft = 1, curl = 1) {
     s  = L;
-    pl = 0.47 * s;  pw = 0.42 * s;  pt = 0.155 * s;  // palm length / width / thickness
+    pl = 0.47 * s;  pw = 0.42 * s;  pt = 0.18 * s;   // palm length / width / thickness
     ww = 0.26 * s;  wt = 0.17 * s;                   // wrist width / thickness
 
     // forearm blending into the band: wrist_r is a radius (round bulb) or
@@ -96,6 +97,17 @@ module human_hand(L, wrist_r, ft = 1, curl = 1) {
     translate([pl * 0.60, 0, pt * 0.18]) ellipsoid([pl * 0.42, pw * 0.36, pt * 0.42]);
     // thenar (thumb) pad
     translate([0.24 * s, pw * 0.28, -pt * 0.25]) ellipsoid([0.15 * s, pw * 0.20, pt * 0.40]);
+    // extensor tendons fanning from the wrist to each knuckle, seated just under
+    // the back surface so they read as fine ridges everywhere
+    function back_z(x, y) = max(
+        pt * 0.18 + pt * 0.42 * sqrt(max(0, 1 - pow((x - pl * 0.6) / (pl * 0.42), 2) - pow(y / (pw * 0.36), 2))),
+        pt / 2 * sqrt(max(0, 1 - pow(y / (pw / 2), 2))) * (x > 0.08 * s ? 1 : 0));
+    for (y = [0.36, 0.12, -0.12, -0.36] * pw)
+        for (seg = [[0.18, 0.55, 0.30, 0.80], [0.30, 0.80, 0.44, 1.0]]) hull() {
+            x0 = seg[0] * s; y0 = y * seg[1]; x1 = seg[2] * s; y1 = y * seg[3];
+            translate([x0, y0, back_z(x0, y0) - 0.006 * s]) sphere(0.016 * s);
+            translate([x1, y1, back_z(x1, y1) - 0.006 * s]) sphere(0.017 * s);
+        }
 
     fy = [0.36, 0.12, -0.12, -0.36] * pw;
     c  = curl;
@@ -129,10 +141,12 @@ module robot_hand(L, wrist_r, ft = 1, curl = 1) {
         translate([-0.36 * s, 0, 0]) sphere(wrist_r);
         translate([-0.22 * s, 0, 0]) xcyl(0.01 * s, wrist_r * 0.98);
     }
-    // wrist collar: stacked rings / bellows over a solid core
+    // wrist collar: one wide cuff with raised rims and four rivets
     translate([-0.26 * s, 0, 0]) xcyl(0.27 * s, wrist_r * 0.90);
-    for (i = [0 : 4]) translate([-0.23 * s + i * 0.042 * s, 0, 0])
-        xcyl(0.046 * s, i % 2 == 0 ? wrist_r * 1.10 : wrist_r * 0.96);
+    translate([-0.25 * s, 0, 0]) xcyl(0.21 * s, wrist_r * 1.02);
+    for (x = [-0.25, -0.07]) translate([x * s, 0, 0]) xcyl(0.03 * s, wrist_r * 1.10);
+    for (a = [45 : 90 : 315]) rotate([a, 0, 0])
+        translate([-0.145 * s, 0, wrist_r * 1.0]) sphere(0.022 * s);
     // ball joint at the wrist
     sphere(wrist_r * 0.92);
 
@@ -163,9 +177,9 @@ module robot_hand(L, wrist_r, ft = 1, curl = 1) {
         robot_finger([0.24, 0.16, 0.13] * s, [0.058, 0.052, 0.046, 0.038] * s, [-2, 4, 6], gw, ft = ft);
     // tucked fingers
     translate([pl, fy[1], 0])
-        robot_finger([0.26, 0.17, 0.13] * s, [0.058, 0.052, 0.046, 0.038] * s, [40, 58, 45] * c, gw, ft = ft, gpos = 0.40);
+        robot_finger([0.26, 0.17, 0.13] * s, [0.058, 0.052, 0.046, 0.038] * s, [40, 58, 45] * c, gw, ft = ft);
     translate([pl - 0.01 * s, fy[2], 0]) rotate([0, 0, -3])
-        robot_finger([0.24, 0.16, 0.12] * s, [0.054, 0.049, 0.043, 0.036] * s, [48, 64, 48] * c, gw, ft = ft, gpos = 0.60);
+        robot_finger([0.24, 0.16, 0.12] * s, [0.054, 0.049, 0.043, 0.036] * s, [48, 64, 48] * c, gw, ft = ft);
     translate([pl - 0.04 * s, fy[3], -0.005 * s]) rotate([0, 0, -8])
         robot_finger([0.19, 0.13, 0.10] * s, [0.048, 0.043, 0.038, 0.032] * s, [55, 70, 50] * c, gw, ft = ft);
     // thumb on a side pivot
