@@ -67,7 +67,8 @@ module robot_finger_(L, r, curl, gw, gpos, i) {
 
 // ---------------------------------------------------------------------------
 //  Human hand.  Wrist at origin, fingers along +X, thumb on +Y, back of hand +Z.
-//  L = wrist → index fingertip.  wrist_r = radius of the band it grows out of.
+//  L = wrist → index fingertip.  wrist_r = radius of the band it grows out of,
+//  or [side, axial] half-sizes when the band is flat.
 //  ft = multiplier on finger diameters, curl = multiplier on tucked-finger flexion.
 // ---------------------------------------------------------------------------
 module human_hand(L, wrist_r, ft = 1, curl = 1) {
@@ -75,11 +76,17 @@ module human_hand(L, wrist_r, ft = 1, curl = 1) {
     pl = 0.47 * s;  pw = 0.40 * s;  pt = 0.13 * s;   // palm length / width / thickness
     ww = 0.26 * s;  wt = 0.17 * s;                   // wrist width / thickness
 
-    // forearm blending into the band bulb
+    // forearm blending into the band: wrist_r is a radius (round bulb) or
+    // [side, axial] half-sizes (a flat band continuing as the forearm)
+    flat = is_list(wrist_r);
+    wr   = flat ? wrist_r : [wrist_r, wrist_r];
     hull() {
-        translate([-0.30 * s, 0, 0]) sphere(wrist_r);
+        // a flat band already reaches the wrist, so its stub is short; a bulb needs reach
+        translate([flat ? -0.12 * s : -0.30 * s, 0, 0]) ellipsoid([wr[0], wr[0], wr[1]]);
         translate([-0.06 * s, 0, 0]) ellipsoid([0.10 * s, ww / 2, wt / 2]);
     }
+    // bony wrist knob on the thumb side
+    translate([-0.02 * s, ww * 0.45, wt * 0.15]) sphere(wt * 0.28);
     // palm
     hull() {
         ellipsoid([0.12 * s, ww / 2, wt / 2]);

@@ -9,9 +9,11 @@ almost touching — the *Creation of Adam* gesture.
   the back corner. The hands run along two adjacent sides and meet at the
   front corner; the fingers droop below the band. Modelled after the silver
   S925 ring reference, with the left hand swapped for the robot's.
-* **Creation Cuff** (`creation_cuff.scad`) — an open round bangle (or ring)
-  whose ends swell into wrists, from which the hands reach across the opening.
-  Modelled after the hammered bangle reference.
+* **Creation Cuff** (`creation_cuff.scad`) — an open band whose ends become
+  the wrists, from which the hands reach across the opening. The `bangle`
+  preset is the hammered round cuff with a bulb at each end; the `ring`
+  preset is the wide, planished flat band where the human forearm *is* the
+  band and the robot hand grows out of a collared bulb.
 
 | Creation Ring | Ring, top | Ring, side |
 |---|---|---|
@@ -93,12 +95,15 @@ openscad -o my_cuff.stl -D '$fn=48' -D 'preset="custom"' \
 | `preset` | `"bangle"` | `"ring"` | `"custom"` uses the `custom_*` values below |
 | `part` | `"assembly"` | | `"band"`, `"human_hand"`, `"robot_hand"` export one piece |
 | `custom_inner_diameter` | 62 | 17.3 | Inside diameter at the thin back of the band |
-| `custom_band_thickness` | 5 | 1.9 | Diameter of the round band profile at the back |
-| `custom_band_swell` | 8 | 2.8 | Band profile diameter where it swells into the wrists |
-| `custom_gap_angle` | 95° | 100° | Opening between the band ends; the hands are sized to fill it |
+| `custom_band_thickness` | 5 | 2.0 | Radial thickness of the band at the back |
+| `custom_band_width` | 5 | 4.2 | Axial width of the band at the back (equal to thickness for a round band) |
+| `custom_band_swell` | 8 | 3.4 | Diameter of the bulb the robot hand grows out of |
+| `custom_human_end` | `"bulb"` | `"forearm"` | Human side ends in a matching bulb, or the band tapers into the forearm |
+| `custom_band_facets` | 0 | 14 | Facets per circle for the band alone; 12–16 gives planished hammer marks, 0 uses `$fn` |
+| `custom_gap_angle` | 95° | 110° | Opening between the band ends; the hands are sized to fill it |
 | `custom_tip_gap` | 3 | 0.8 | Space left between the two fingertips |
-| `custom_finger_thickness` | 1.0 | 1.6 | Multiplier on finger diameters, for castability at small scale |
-| `meet_inset` | 0 | | Move the meeting point inward from the band circle |
+| `custom_finger_thickness` | 1.0 | 1.5 | Multiplier on finger diameters, for castability at small scale |
+| `wrist_bend` | 0.55 | | 0 = hands continue the band's curve, 1 = they point straight across; the hands are lengthened so the tips still meet |
 | `hand_pitch` | 8° | | Droop of the hands below the band plane |
 | `hand_roll` | 0° | | Twist of each hand about its forearm |
 | `finger_curl` | 1.0 | | Scales how tightly the three tucked fingers curl |
@@ -106,9 +111,10 @@ openscad -o my_cuff.stl -D '$fn=48' -D 'preset="custom"' \
 | `hammer` | 0.05 | | Hammered relief on the outside of the band, as a fraction of band radius (0 = smooth) |
 | `$fn` | 28 | | Facets per circle; use 48–64 for the final export |
 
-The hands are **derived**: their length is the distance from the band end to
-the meeting point minus half the tip gap, so changing the diameter or gap
-re-sizes and re-aims them automatically. The console prints the hand length
+The hands are **derived**: each one heads out along the band's tangent, bent
+toward the chord by `wrist_bend`, and is made exactly long enough for the two
+index tips to meet on the centre plane `tip_gap` apart. Changing the diameter,
+gap or bend re-sizes and re-aims them automatically. The console prints the hand length
 and the thinnest feature (pinky tip) and warns when that drops under 0.8 mm.
 
 ### Ring sizes
@@ -130,11 +136,12 @@ grows outward only, so the fit is not affected by it.
   bore is subtracted afterwards so the inside is a flat, engravable face.
   The arms drift apart axially as they approach the back corner so they read
   as crossing.
-* **Cuff band** — a sweep of hulled spheres around an arc of `360 − gap` degrees.
-  The sphere radius follows a smooth-step from `band_thickness/2` at the back
-  to `band_swell/2` at each end, and a seeded random jitter gives the
-  hammered surface. Because the sphere centres sit at `inner_radius + r`, the
-  bore stays perfectly round.
+* **Cuff band** — a sweep of hulled ellipsoids around an arc of `360 − gap`
+  degrees. The profile (radial × axial) smooth-steps from the back section to
+  each end section: a round bulb on the robot side, a bulb or a slimmer
+  forearm on the human side. A seeded jitter and, on the ring preset, a
+  deliberately low facet count give the hammered surface. Because the
+  centres sit at `inner_radius + r`, the bore stays perfectly round.
 * **Human hand** — wrist and palm are hulled ellipsoids with a metacarpal dome
   and a thenar pad; each finger is a recursive chain of hulled, slightly
   flattened spheres with per-joint flexion and a nail on the index and thumb.
