@@ -35,31 +35,29 @@ module finger_(L, r, curl, nail, i) {
     }
 }
 
-// Mechanical finger: tapered tubes, a short knuckle pin at every joint, and an
-// armour plate with two rivets riding on the back of each phalanx.
+// Mechanical finger: tapered tubes with a ball at every knuckle, two raised
+// ring bands on each segment and a pair of small rivets on its back.  Every
+// element is a body of revolution, so the finger stays smooth and curvy.
 module robot_finger(L, r, curl, gw, ft = 1) { robot_finger_(L, r * ft, curl, gw, 0); }
 module robot_finger_(L, r, curl, gw, i) {
     if (i < len(L)) rotate([0, curl[i], 0]) {
-        rm = (r[i] + r[i + 1]) / 2;
-        // knuckle pin (axis = Y), just proud of the tube
-        rotate([90, 0, 0]) cylinder(h = r[i] * 1.7, r = r[i] * 0.82, center = true);
-        // phalanx tube
-        hull() {
-            xcyl(L[i], r[i], r[i + 1]);
-            translate([L[i], 0, 0]) sphere(r[i + 1]);
+        sphere(r[i] * 1.04);                                     // ball knuckle
+        hull() {                                                 // segment tube
+            xcyl(L[i], r[i] * 0.94, r[i + 1] * 0.94);
+            translate([L[i], 0, 0]) sphere(r[i + 1] * 0.94);
         }
-        // armour plate: a rounded slab on the back, with two rivets
-        pl_len = L[i] * 0.62;  pl_w = rm * 1.5;  pl_t = rm * 0.32;
-        translate([L[i] * 0.5, 0, rm * 0.78]) hull()
-            for (x = [-1, 1], y = [-1, 1])
-                translate([x * (pl_len / 2 - gw), y * (pl_w / 2 - gw), 0])
-                    cylinder(h = pl_t, r = gw, center = true);
-        for (x = [-1, 1])
-            translate([L[i] * 0.5 + x * pl_len * 0.28, 0, rm * 0.94]) sphere(gw * 1.3);
-        // conical tip pad
-        if (i == len(L) - 1) hull() {
-            translate([L[i], 0, 0]) sphere(r[i + 1]);
-            translate([L[i] + r[i + 1] * 0.9, 0, -r[i + 1] * 0.1]) sphere(r[i + 1] * 0.45);
+        for (f = [0.32, 0.72]) {                                 // raised ring bands
+            rf = r[i] + (r[i + 1] - r[i]) * f;
+            translate([L[i] * f - gw * 0.9, 0, 0]) xcyl(gw * 1.8, rf * 1.03);
+        }
+        for (x = [-1, 1]) {                                      // rivets on the back
+            xf = 0.52 + x * 0.20;
+            rf = r[i] + (r[i + 1] - r[i]) * xf;
+            translate([L[i] * xf, 0, rf * 0.90]) sphere(gw * 1.1);
+        }
+        if (i == len(L) - 1) hull() {                            // rounded tip pad
+            translate([L[i], 0, 0]) sphere(r[i + 1] * 0.94);
+            translate([L[i] + r[i + 1] * 0.8, 0, -r[i + 1] * 0.1]) sphere(r[i + 1] * 0.5);
         }
         translate([L[i], 0, 0]) robot_finger_(L, r, curl, gw, i + 1);
     }
@@ -132,10 +130,9 @@ module human_hand(L, wrist_r, ft = 1, curl = 1) {
 module robot_hand(L, wrist_r, ft_in = 1, curl = 1) {
     s  = L;
     ft = ft_in * 1.25;                               // mechanical fingers are stouter than flesh
-    pl = 0.46 * s;  pw = 0.44 * s;  pt = 0.17 * s;
+    pl = 0.46 * s;  pw = 0.44 * s;  pt = 0.19 * s;
     ww = 0.32 * s;  wt = 0.24 * s;
-    gw = 0.018 * s;                                  // panel-groove width
-    cr = 0.035 * s;                                  // palm corner radius
+    gw = 0.018 * s;                                  // seam width
 
     // forearm stub into the band
     hull() {
@@ -151,25 +148,29 @@ module robot_hand(L, wrist_r, ft_in = 1, curl = 1) {
     // ball joint at the wrist
     sphere(wrist_r * 0.92);
 
-    // palm: rounded, tapered box with panel lines
+    // palm: a smooth curved shell (wrist ellipsoid hulled to the knuckle ellipsoid,
+    // with a domed back) and shallow seams that follow the curvature
+    dz = pt * 0.20;  dx = pl * 0.46;  dy = pw * 0.42;  dr = pt * 0.48;   // back dome
+    function dome_z(x, y) = dz + dr * sqrt(max(0, 1 - pow((x - pl * 0.56) / dx, 2) - pow(y / dy, 2)));
     difference() {
-        hull() for (x = [0, pl], z = [-1, 1]) {
-            w = (x == 0 ? ww : pw) / 2 - cr;
-            t = (x == 0 ? wt : pt) / 2 - cr;
-            for (y = [-w, w]) translate([x, y, z * t]) sphere(cr);
+        union() {
+            hull() {
+                ellipsoid([0.12 * s, ww / 2, wt / 2]);
+                translate([pl, 0, 0]) ellipsoid([0.10 * s, pw / 2, pt / 2]);
+            }
+            translate([pl * 0.56, 0, dz]) ellipsoid([dx, dy, dr]);
         }
-        // transverse groove
-        translate([pl * 0.42, 0, pt / 2]) cube([gw, pw * 1.2, gw * 1.6], center = true);
-        // longitudinal grooves between the finger rays
-        for (y = [-0.24, 0, 0.24] * pw)
-            translate([pl * 0.72, y, pt / 2]) cube([pl * 0.56, gw, gw * 1.6], center = true);
-        // underside groove
-        translate([pl * 0.55, 0, -pt / 2]) cube([gw, pw * 1.2, gw * 1.6], center = true);
+        // transverse seam across the back, traced over the dome
+        for (k = [-8 : 7]) hull() for (j = [k, k + 1]) {
+            y = j / 8 * dy * 0.92;  x = pl * 0.40;
+            translate([x, y, dome_z(x, y)]) sphere(gw * 0.9, $fn = 12);
+        }
+        // three seams running toward the knuckles
+        for (y = [-0.24, 0, 0.24] * pw, k = [0 : 5]) hull() for (j = [k, k + 1]) {
+            x = pl * (0.48 + 0.08 * j);
+            translate([x, y, dome_z(x, y)]) sphere(gw * 0.9, $fn = 12);
+        }
     }
-    // raised back plate
-    translate([pl * 0.50, 0, pt / 2 - gw]) hull()
-        for (y = [-1, 1], x = [-1, 1])
-            translate([x * pl * 0.22, y * pw * 0.30, 0]) cylinder(h = gw * 2, r = cr);
 
     fy = [0.36, 0.12, -0.12, -0.36] * pw;
     c  = curl;
