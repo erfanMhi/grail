@@ -123,7 +123,8 @@ module human_hand(L, wrist_r, ft = 1, curl = 1) {
 }
 
 // ---------------------------------------------------------------------------
-//  Robot hand.  Same frame as human_hand.
+//  Robot hand.  Same frame as human_hand.  wrist_r follows the same rule as the
+//  human hand: a number means a bulb (adds the collar), [side, axial] means flat.
 // ---------------------------------------------------------------------------
 module robot_hand(L, wrist_r, ft_in = 1, curl = 1) {
     s  = L;
@@ -132,19 +133,27 @@ module robot_hand(L, wrist_r, ft_in = 1, curl = 1) {
     ww = 0.32 * s;  wt = 0.24 * s;
     gw = 0.018 * s;                                  // seam width
 
-    // forearm stub into the band
-    hull() {
-        translate([-0.36 * s, 0, 0]) sphere(wrist_r);
-        translate([-0.22 * s, 0, 0]) xcyl(0.01 * s, wrist_r * 0.98);
+    // wrist_r as a number: the band ends in a bulb, so add the riveted collar and a
+    // ball wrist.  wrist_r as [side, axial]: the band tapers straight into the wrist,
+    // and the hand simply grows out of it, smooth all the way.
+    flat = is_list(wrist_r);
+    if (flat) {
+        hull() {
+            translate([-0.12 * s, 0, 0]) ellipsoid([wrist_r[0] * 0.9, wrist_r[0] * 0.9, wrist_r[1] * 0.9]);
+            translate([-0.04 * s, 0, 0]) ellipsoid([0.10 * s, ww / 2, wt / 2]);
+        }
+    } else {
+        hull() {
+            translate([-0.36 * s, 0, 0]) sphere(wrist_r);
+            translate([-0.22 * s, 0, 0]) xcyl(0.01 * s, wrist_r * 0.98);
+        }
+        translate([-0.26 * s, 0, 0]) xcyl(0.27 * s, wrist_r * 0.90);
+        translate([-0.25 * s, 0, 0]) xcyl(0.21 * s, wrist_r * 1.02);
+        for (x = [-0.25, -0.07]) translate([x * s, 0, 0]) xcyl(0.03 * s, wrist_r * 1.10);
+        for (a = [45 : 90 : 315]) rotate([a, 0, 0])
+            translate([-0.145 * s, 0, wrist_r * 1.0]) sphere(0.022 * s);
+        sphere(wrist_r * 0.92);
     }
-    // wrist collar: one wide cuff with raised rims and four rivets
-    translate([-0.26 * s, 0, 0]) xcyl(0.27 * s, wrist_r * 0.90);
-    translate([-0.25 * s, 0, 0]) xcyl(0.21 * s, wrist_r * 1.02);
-    for (x = [-0.25, -0.07]) translate([x * s, 0, 0]) xcyl(0.03 * s, wrist_r * 1.10);
-    for (a = [45 : 90 : 315]) rotate([a, 0, 0])
-        translate([-0.145 * s, 0, wrist_r * 1.0]) sphere(0.022 * s);
-    // ball joint at the wrist
-    sphere(wrist_r * 0.92);
 
     // palm: a smooth curved shell (wrist ellipsoid hulled to the knuckle ellipsoid,
     // with a domed back) and shallow seams that follow the curvature

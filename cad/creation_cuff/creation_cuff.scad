@@ -30,8 +30,10 @@ custom_band_thickness = 5;
 custom_band_width = 5;
 // Diameter of the bulb the robot hand grows out of
 custom_band_swell = 8;
-// How the band meets the human hand: a matching bulb, or tapering into the forearm
+// How the band meets the human hand: a bulb, or tapering smoothly into the forearm
 custom_human_end = "bulb"; // ["bulb", "forearm"]
+// How the band meets the robot hand: a collared bulb, or tapering smoothly into the wrist
+custom_robot_end = "bulb"; // ["bulb", "forearm"]
 // Opening between the two band ends, in degrees (the hands fill it)
 custom_gap_angle = 95;
 // Distance left between the two index fingertips
@@ -51,6 +53,8 @@ finger_curl = 1.4;
 custom_finger_thickness = 1.0;
 // Degrees of band on each side over which it swells into the wrist
 swell_span = 45;
+// Degrees of band on each side that curve out of the circle into the hand's heading, so the wrist has no kink
+bend_span = 26;
 
 /* [Surface] */
 // Soft organic undulation of the band's outer surface, as a fraction of its radius (0 = perfectly even)
@@ -80,6 +84,7 @@ gap_a    = preset == "bangle" ? 95  : preset == "ring" ? 116  : custom_gap_angle
 tip_gap  = preset == "bangle" ? 3   : preset == "ring" ? 0.8  : custom_tip_gap;
 finger_thickness = preset == "bangle" ? 1.0 : preset == "ring" ? 1.15 : custom_finger_thickness;
 human_end   = preset == "bangle" ? "bulb" : preset == "ring" ? "forearm" : custom_human_end;
+robot_end   = preset == "bangle" ? "bulb" : preset == "ring" ? "forearm" : custom_robot_end;
 dimples     = preset == "bangle" ? 0 : preset == "ring" ? 96 : custom_dimples;
 
 Ri        = inner_d / 2;              // inner radius (constant all the way round)
@@ -90,9 +95,10 @@ arc       = th_end - th_start;
 function smooth(u) = u * u * (3 - 2 * u);
 // Band profile [radial half-thickness, axial half-width] at each end.
 // side +1 = human end (th_start), -1 = robot end (th_end)
+function is_bulb(side) = (side < 0 ? robot_end : human_end) == "bulb";
 function end_prof(side) =
-    side < 0 || human_end == "bulb" ? [swell_t / 2, swell_t / 2]
-                                    : [band_t / 2 * 1.05, band_w / 2 * 1.12];   // forearm: a little fuller than the band
+    is_bulb(side) ? [swell_t / 2, swell_t / 2]
+                  : [band_t / 2 * 1.05, band_w / 2 * 1.12];   // forearm: a little fuller than the band
 back_prof = [band_t / 2, band_w / 2];
 // Band profile at polar angle th: back profile, morphing into each end profile over swell_span
 function band_r(th) =
@@ -104,10 +110,12 @@ function band_r(th) =
 
 // Centre of the band profile at angle th (keeps the inner face on the inner circle)
 function band_c(th, r) = [(Ri + r) * cos(th), (Ri + r) * sin(th), 0];
+// Direction of travel along the band toward the end on `side`
+function travel(th, side) = side > 0 ? [sin(th), -cos(th), 0] : [-sin(th), cos(th), 0];
 
 function end_pt(side)  = band_c(side > 0 ? th_start : th_end, end_prof(side)[0]);
 // Radius of the stub each hand grows out of
-function wrist_r(side) = side < 0 || human_end == "bulb" ? swell_t / 2 : end_prof(side);
+function wrist_r(side) = is_bulb(side) ? swell_t / 2 : end_prof(side);
 // Hand heading: the band's tangent at its end, bent toward the chord by wrist_bend.
 // Right hand (side +1) heads -X across the gap, left hand +X; both are symmetric in X.
 function tangent_yaw(side) = side > 0 ? (th_start - 90) : (th_end + 90);
@@ -136,6 +144,22 @@ use <hands.scad>
 // ---------------------------------------------------------------------------
 //  Band
 // ---------------------------------------------------------------------------
+// Band centreline: on the circle, except the last bend_span degrees at each end, which
+// follow a cubic Hermite curve from the circle's tangent into the hand's heading so the
+// band flows into the wrist without a kink.
+function herm(th_a, th_e, side, u, r) =
+    let(A = band_c(th_a, r), E = band_c(th_e, r),
+        L = (Ri + r) * bend_span * PI / 180,
+        TA = travel(th_a, side) * L, TE = hand_dir(side) * L,
+        h00 = 2*u*u*u - 3*u*u + 1, h10 = u*u*u - 2*u*u + u,
+        h01 = -2*u*u*u + 3*u*u,    h11 = u*u*u - u*u)
+    h00 * A + h10 * TA + h01 * E + h11 * TE;
+function band_pt(th, r) =
+    let(du = th - th_start, dd = th_end - th)
+    du < bend_span ? herm(th_start + bend_span, th_start, +1, 1 - du / bend_span, r)
+  : dd < bend_span ? herm(th_end - bend_span, th_end, -1, 1 - dd / bend_span, r)
+  : band_c(th, r);
+
 // Profile at th including the organic undulation (radial fully, axial half as much)
 function band_prof(th) = let(r = band_r(th), h = hammer * wave(th))
     [r[0] * (1 + h), r[1] * (1 + 0.5 * h)];
@@ -143,7 +167,7 @@ function band_prof(th) = let(r = band_r(th), h = hammer * wave(th))
 module band_ball(i) {
     th = th_start + arc * i / band_segments;
     r  = band_prof(th);
-    translate(band_c(th, r[0])) scale([r[0], r[0], r[1]]) sphere(1);
+    translate(band_pt(th, r[0])) scale([r[0], r[0], r[1]]) sphere(1);
 }
 
 // Hammer marks: shallow spheres subtracted from the outer face, each one seated on
@@ -153,8 +177,8 @@ module dimple_cutters() {
     rows = 3;
     per  = ceil(dimples / rows);
     rr   = rands(0, 1, rows * per * 3, dimple_seed);
-    a0   = th_start + swell_span * 0.35;
-    a1   = th_end - swell_span * 0.35;
+    a0   = th_start + max(swell_span * 0.35, bend_span + 3);
+    a1   = th_end - max(swell_span * 0.35, bend_span + 3);
     for (row = [0 : rows - 1], i = [0 : per - 1]) {
         k   = row * per + i;
         th  = a0 + (a1 - a0) * (i + 0.5 + 0.5 * (row % 2) + 0.5 * (rr[3 * k] - 0.5)) / per;

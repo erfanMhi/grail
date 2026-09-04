@@ -133,7 +133,7 @@ corner   = se_pt(a_c, 315);                    // where the index fingers meet
 wrist_l  = se_pt(a_c, 225 + wrist_shift);      // robot (left) hand, bottom side, points +X
 wrist_r  = se_pt(a_c, 45 - wrist_shift);       // human (right) hand, right side, points -Y
 hand_L   = norm(corner - wrist_l) - tip_gap;
-wrist_rad = band_w * 0.42;
+wrist_rad = [band_t * 0.55, band_w * 0.42];        // [side, axial]: the arm flows straight into each wrist
 
 // approximate tip positions for the console readout
 tip_l = wrist_l + hand_L * [cos(hand_yaw_in), sin(hand_yaw_in), 0];
