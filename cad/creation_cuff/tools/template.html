@@ -1,0 +1,302 @@
+<title>Creation Cuff</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #eceef1;
+    --surface: #f7f8fa;
+    --ink: #1b1e23;
+    --muted: #5f6873;
+    --line: #d3d8df;
+    --accent: #9c7a2a;
+    --accent-ink: #6f5518;
+    --canvas-bg: #e4e7eb;
+    --shadow: 0 1px 2px rgba(20, 24, 30, .08), 0 8px 24px -12px rgba(20, 24, 30, .25);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #14171b; --surface: #1c2025; --ink: #e7eaee; --muted: #8f99a5;
+      --line: #2d333b; --accent: #c9a24a; --accent-ink: #e2c273; --canvas-bg: #1a1e23;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #14171b; --surface: #1c2025; --ink: #e7eaee; --muted: #8f99a5;
+    --line: #2d333b; --accent: #c9a24a; --accent-ink: #e2c273; --canvas-bg: #1a1e23;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font: 14px/1.5 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    min-height: 100vh;
+  }
+  .page { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
+  @media (max-width: 860px) { .page { height: auto; min-height: 100vh; } }
+  header {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    padding: 18px 28px 14px; border-bottom: 1px solid var(--line);
+  }
+  h1 {
+    margin: 0; font: 600 34px/1.05 "Cormorant Garamond", "Times New Roman", Georgia, serif;
+    letter-spacing: .01em; text-wrap: balance;
+  }
+  h1 em { font-style: italic; font-weight: 500; color: var(--muted); }
+  .eyebrow {
+    font: 500 11px/1 "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--accent-ink); margin-bottom: 8px;
+  }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); gap: 2px; }
+  .seg button, .btn {
+    font: 500 13px/1 "IBM Plex Sans", system-ui, sans-serif; color: var(--muted);
+    background: transparent; border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+  .seg button:focus-visible, .btn:focus-visible, .chk:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; min-height: 0; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; grid-template-rows: 62vh auto; } }
+  .stage { position: relative; background: var(--canvas-bg); min-height: 420px; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+  canvas:active { cursor: grabbing; }
+  .views {
+    position: absolute; left: 16px; bottom: 16px; display: flex; gap: 6px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px; box-shadow: var(--shadow);
+  }
+  .views .btn:hover { color: var(--ink); }
+  .views .btn[aria-pressed="true"] { color: var(--ink); background: var(--ground); }
+  .hint { position: absolute; right: 16px; bottom: 20px; color: var(--muted); font-size: 12px; }
+  aside { border-left: 1px solid var(--line); background: var(--surface); padding: 22px 24px; display: flex; flex-direction: column; gap: 22px; overflow: auto; }
+  @media (max-width: 860px) { aside { border-left: 0; border-top: 1px solid var(--line); } }
+  aside h2 { margin: 0 0 10px; font: 500 11px/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  td { padding: 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td:last-child { text-align: right; font-family: "IBM Plex Mono", ui-monospace, monospace; padding-left: 12px; }
+  tr:last-child td { border-bottom: 0; }
+  .warn td:last-child { color: var(--accent-ink); }
+  .chk { display: flex; align-items: center; gap: 10px; padding: 6px 0; cursor: pointer; }
+  .metals { display: flex; flex-wrap: wrap; margin-bottom: 8px; }
+  .metals button { padding: 7px 11px; font-size: 12.5px; }
+  .chk input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
+  p { margin: 0; color: var(--muted); max-width: 42ch; }
+  code { font: 12.5px "IBM Plex Mono", ui-monospace, monospace; color: var(--ink); background: var(--ground); padding: 1px 5px; border-radius: 4px; }
+  .legend { display: flex; flex-direction: column; gap: 6px; }
+  .legend span { display: block; }
+  .legend b { font-weight: 600; margin-right: 6px; }
+</style>
+
+<div class="page">
+  <header>
+    <div>
+      <div class="eyebrow">Parametric CAD templates · sterling, cast in one piece</div>
+      <h1>Creation Ring <em>&amp; Creation Cuff</em></h1>
+    </div>
+    <div class="seg" role="group" aria-label="Model">
+      <button data-model="cring" aria-pressed="true">Ring · arms as band</button>
+      <button data-model="bangle" aria-pressed="false">Cuff · Ø 62 mm</button>
+      <button data-model="ring" aria-pressed="false">Hammered ring · US 7</button>
+    </div>
+  </header>
+  <main>
+    <div class="stage">
+      <canvas id="c" aria-label="Interactive 3D view of the cuff"></canvas>
+      <div class="views" role="group" aria-label="Camera">
+        <button class="btn" data-view="photo" aria-pressed="true">Photo</button>
+        <button class="btn" data-view="top">Top</button>
+        <button class="btn" data-view="front">Front</button>
+        <button class="btn" data-view="robot">Robot hand</button>
+        <button class="btn" data-view="human">Human hand</button>
+      </div>
+      <div class="hint">drag to orbit · wheel to zoom</div>
+    </div>
+    <aside>
+      <section>
+        <h2>Dimensions</h2>
+        <table id="dims"></table>
+      </section>
+      <section>
+        <h2>Display</h2>
+        <div class="seg metals" role="group" aria-label="Metal">
+          <button data-metal="silver" aria-pressed="true">Sterling</button>
+          <button data-metal="white">White gold</button>
+          <button data-metal="yellow">Yellow gold</button>
+          <button data-metal="rose">Rose gold</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="wire"> Wireframe</label>
+        <label class="chk"><input type="checkbox" id="spin" checked> Slow turntable</label>
+      </section>
+      <section>
+        <h2>Composition</h2>
+        <div class="legend" id="legend"></div>
+      </section>
+      <section>
+        <h2>Source</h2>
+        <p>Every dimension here is a knob in <code>cad/creation_cuff/</code> (<code>creation_ring.scad</code>, <code>creation_cuff.scad</code>, shared <code>hands.scad</code>). Change the size or the opening and the hands re-size and re-aim themselves. STL files sit in <code>export/</code>.</p>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const MODELS = __MODELS_JSON__;
+const SPECS = {
+  cring:  { rows: [["Inside, across flats", "17.3 mm"], ["Band width (axial)", "4.8 mm"], ["Band thickness, wrist → belly", "1.5 → 2.6 mm"],
+    ["Corner exponent", "4.5"], ["Hand, wrist → index tip", "11.6 mm"], ["Fingertip gap", "≈ 0.9 mm"], ["Thinnest feature (pinky tip)", "0.89 mm"], ["Engraving", "“925”, 0.15 mm deep"]],
+    legend: [["Left", "robotic hand along the bottom side, bellows collar, pinned knuckles"], ["Right", "human hand up the right side, index extended, fingers drooping"], ["Band", "two forearms, flat and engraved inside, crossing at the back corner"]] },
+  bangle: { rows: [["Inner diameter, back", "62.0 mm"], ["Band, round", "5.0 mm, bulbs 8.0 mm"], ["Opening", "95°"],
+    ["Hand, wrist → index tip", "25.1 mm"], ["Fingertip gap", "3.0 mm"], ["Thinnest feature (pinky tip)", "1.6 mm"]],
+    legend: [["Left", "robotic hand, bellows collar, pinned knuckles"], ["Right", "human hand, index extended, thumb tucked"], ["Band", "round profile, hammered, swells into each wrist"]] },
+  ring:   { rows: [["Inner diameter, back", "17.3 mm"], ["Band, hammered oval", "2.7 × 2.9 mm, bulb 3.3 mm"], ["Opening", "116°"],
+    ["Hand, wrist → index tip", "8.5 mm"], ["Fingertip gap", "0.8 mm"], ["Thinnest feature (pinky tip)", "0.63 mm"]],
+    legend: [["Left", "robotic hand out of a riveted collar, ringed finger segments, ball knuckles"], ["Right", "human hand, the forearm is the band, tendons on the back, fingers drooping"], ["Band", "oval profile with planished hammer marks"]] },
+};
+
+// ---- indexed mesh (deduplicated positions + triangle indices) → geometry, smooth-shaded
+function b64ToBuffer(b64) {
+  const bin = atob(b64), buf = new ArrayBuffer(bin.length), u8 = new Uint8Array(buf);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return buf;
+}
+function parseMesh(m) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(b64ToBuffer(m.pos)), 3));
+  g.setIndex(new THREE.BufferAttribute(new Uint32Array(b64ToBuffer(m.idx)), 1));
+  g.computeVertexNormals();
+  g.computeBoundingSphere();
+  return g;
+}
+
+// ---- renderer, studio environment, material
+const canvas = document.getElementById("c");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 2000);
+
+function studioEnv() {
+  const s = new THREE.Scene();
+  const room = new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), new THREE.MeshBasicMaterial({ color: 0x5c6068, side: THREE.BackSide }));
+  s.add(room);
+  const soft = (w, h, c, pos, look) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide }));
+    m.position.set(...pos); m.lookAt(0, 0, 0); s.add(m);
+  };
+  soft(28, 12, 0xffffff, [-6, 26, 18]);    // key softbox, front-above
+  soft(10, 26, 0xdfe3e8, [-34, 4, -10]);   // left fill strip
+  soft(8, 26, 0xb9bec6, [32, -2, -16]);    // right rim strip
+  soft(60, 60, 0x1e2126, [0, -40, 0]);     // dark floor
+  soft(60, 60, 0x2a2d33, [0, 0, -45]);     // dark back wall
+  const pm = new THREE.PMREMGenerator(renderer);
+  const tex = pm.fromScene(s, 0.04).texture;
+  pm.dispose();
+  return tex;
+}
+const env = studioEnv();
+scene.environment = env;
+const silver = new THREE.MeshStandardMaterial({ color: 0xd8dbe0, metalness: 1.0, roughness: 0.22, envMapIntensity: 1.0 });
+// measured-ish base reflectances: sterling, 18k white (rhodium-plated), 18k yellow, 18k rose
+const METALS = {
+  silver: { color: 0xd8dbe0, roughness: 0.22, env: 1.0 },
+  white:  { color: 0xd6d4cc, roughness: 0.20, env: 1.0 },
+  yellow: { color: 0xf5c65a, roughness: 0.20, env: 1.25 },
+  rose:   { color: 0xeaa987, roughness: 0.21, env: 1.2 },
+};
+function setMetal(name) {
+  const m = METALS[name] || METALS.silver;
+  silver.color.setHex(m.color); silver.roughness = m.roughness; silver.envMapIntensity = m.env; silver.needsUpdate = true;
+  document.querySelectorAll(".metals button").forEach(b => b.setAttribute("aria-pressed", b.dataset.metal === name));
+}
+const wireMat = new THREE.MeshBasicMaterial({ color: 0x9c7a2a, wireframe: true, transparent: true, opacity: 0.35 });
+const key = new THREE.DirectionalLight(0xffffff, 0.35); key.position.set(-20, 40, 30); scene.add(key);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a2d33, 0.15));
+
+// ---- model
+const group = new THREE.Group();
+scene.add(group);
+let mesh = null, wire = null, radius = 40, current = "cring";
+const geoms = {};
+function load(kind) {
+  if (!geoms[kind]) geoms[kind] = parseMesh(MODELS[kind]);
+  const g = geoms[kind];
+  if (mesh) { group.remove(mesh); group.remove(wire); }
+  mesh = new THREE.Mesh(g, silver); wire = new THREE.Mesh(g, wireMat);
+  wire.visible = document.getElementById("wire").checked;
+  group.add(mesh); group.add(wire);
+  radius = g.boundingSphere.radius;
+  current = kind;
+  document.querySelectorAll(".seg button[data-model]").forEach(b => b.setAttribute("aria-pressed", b.dataset.model === kind));
+  document.getElementById("legend").innerHTML = SPECS[kind].legend.map(l => `<span><b>${l[0]}</b> ${l[1]}</span>`).join("");
+  const t = document.getElementById("dims");
+  t.innerHTML = SPECS[kind].rows.map(r => `<tr class="${r[2] || ""}"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("") +
+    `<tr><td>Mesh</td><td>${MODELS[kind].tris.toLocaleString()} triangles</td></tr>`;
+  setView(currentView);
+}
+
+// ---- orbit camera (spherical), with views and a gentle turntable
+const ctl = { theta: 0, phi: 1.1, dist: 3, target: new THREE.Vector3(0, 0, 0) };
+let currentView = "photo";
+const VIEWS = {
+  photo:  { theta: -Math.PI / 2, phi: 1.05, dist: 4.3, target: [0, 0, 0] },
+  photoR: { theta: -Math.PI / 4, phi: 1.0, dist: 4.3, target: [0, 0, 0] },
+  robotR: { theta: -Math.PI / 2, phi: 1.0, dist: 1.5, target: [0.1, -0.85, -0.15] },
+  humanR: { theta: 0, phi: 1.0, dist: 1.5, target: [0.85, -0.1, -0.15] },
+  top:    { theta: -Math.PI / 2, phi: 0.02, dist: 4.3, target: [0, 0, 0] },
+  front:  { theta: -Math.PI / 2, phi: Math.PI / 2 - 0.02, dist: 4.3, target: [0, 0, 0] },
+  robot:  { theta: -Math.PI / 2 - 0.35, phi: 1.0, dist: 1.4, target: [-0.55, -0.75, -0.1] },
+  human:  { theta: -Math.PI / 2 + 0.35, phi: 1.0, dist: 1.4, target: [0.55, -0.75, -0.1] },
+};
+function setView(name) {
+  const v = VIEWS[current === "cring" && VIEWS[name + "R"] ? name + "R" : name] || VIEWS.photo; currentView = name;
+  ctl.theta = v.theta; ctl.phi = v.phi; ctl.dist = v.dist * radius;
+  ctl.target.set(v.target[0] * radius, v.target[1] * radius, v.target[2] * radius);
+  document.querySelectorAll(".views .btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === name));
+}
+function applyCamera() {
+  const sp = Math.sin(ctl.phi);
+  camera.position.set(
+    ctl.target.x + ctl.dist * sp * Math.cos(ctl.theta),
+    ctl.target.y + ctl.dist * sp * Math.sin(ctl.theta),
+    ctl.target.z + ctl.dist * Math.cos(ctl.phi));
+  camera.up.set(0, 0, 1);
+  camera.lookAt(ctl.target);
+}
+let drag = null, idle = 0;
+canvas.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); idle = 0; });
+canvas.addEventListener("pointermove", e => {
+  if (!drag) return;
+  ctl.theta -= (e.clientX - drag.x) * 0.006;
+  ctl.phi = Math.min(Math.PI - 0.05, Math.max(0.05, ctl.phi - (e.clientY - drag.y) * 0.006));
+  drag = { x: e.clientX, y: e.clientY }; idle = 0;
+});
+canvas.addEventListener("pointerup", () => drag = null);
+canvas.addEventListener("wheel", e => { e.preventDefault(); ctl.dist *= Math.exp(e.deltaY * 0.0012); ctl.dist = Math.min(radius * 8, Math.max(radius * 0.3, ctl.dist)); idle = 0; }, { passive: false });
+
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const spinBox = document.getElementById("spin");
+if (reduced) spinBox.checked = false;
+
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== Math.floor(w * renderer.getPixelRatio()) || canvas.height !== Math.floor(h * renderer.getPixelRatio())) {
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+}
+function frame() {
+  resize();
+  if (spinBox.checked && !drag) { idle++; if (idle > 90) ctl.theta -= 0.0025; }
+  applyCamera();
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+document.querySelectorAll(".seg button[data-model]").forEach(b => b.onclick = () => load(b.dataset.model));
+document.getElementById("wire").onchange = e => { if (wire) wire.visible = e.target.checked; };
+document.querySelectorAll(".metals button").forEach(b => b.onclick = () => setMetal(b.dataset.metal));
+document.querySelectorAll(".views .btn").forEach(b => b.onclick = () => setView(b.dataset.view));
+
+document.querySelectorAll(".seg button[data-model]").forEach(b => { if (!MODELS[b.dataset.model]) b.hidden = true; });
+load(MODELS.cring ? "cring" : Object.keys(MODELS)[0]);
+frame();
+</script>
