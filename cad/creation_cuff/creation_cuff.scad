@@ -46,7 +46,7 @@ hand_pitch = 8;
 // Twist of the hands about their own forearm axis (deg)
 hand_roll = 0;
 // Multiplier on the curl of the three tucked fingers
-finger_curl = 1.0;
+finger_curl = 1.25;
 // Multiplier on finger diameters (thicken small pieces so they cast/print). Ring preset uses 1.5
 custom_finger_thickness = 1.0;
 // Degrees of band on each side over which it swells into the wrist
@@ -54,7 +54,7 @@ swell_span = 45;
 
 /* [Surface] */
 // Random hammered relief on the outside of the band, as a fraction of the band radius (0 = smooth)
-hammer = 0.05;
+hammer = 0.07;
 hammer_seed = 7;
 // Facets per circle used for the band alone; low values (12-16) give planished, hammered facets. 0 = use $fn
 custom_band_facets = 0;
@@ -69,14 +69,14 @@ band_segments = 72;
 //  Derived sizing
 // ---------------------------------------------------------------------------
 inner_d  = preset == "bangle" ? 62  : preset == "ring" ? 17.3 : custom_inner_diameter;
-band_t   = preset == "bangle" ? 5   : preset == "ring" ? 2.0  : custom_band_thickness;
-band_w   = preset == "bangle" ? 5   : preset == "ring" ? 4.2  : custom_band_width;
-swell_t  = preset == "bangle" ? 8   : preset == "ring" ? 3.4  : custom_band_swell;
-gap_a    = preset == "bangle" ? 95  : preset == "ring" ? 110  : custom_gap_angle;
+band_t   = preset == "bangle" ? 5   : preset == "ring" ? 2.6  : custom_band_thickness;
+band_w   = preset == "bangle" ? 5   : preset == "ring" ? 3.6  : custom_band_width;
+swell_t  = preset == "bangle" ? 8   : preset == "ring" ? 3.9  : custom_band_swell;
+gap_a    = preset == "bangle" ? 95  : preset == "ring" ? 108  : custom_gap_angle;
 tip_gap  = preset == "bangle" ? 3   : preset == "ring" ? 0.8  : custom_tip_gap;
 finger_thickness = preset == "bangle" ? 1.0 : preset == "ring" ? 1.5 : custom_finger_thickness;
 human_end   = preset == "bangle" ? "bulb" : preset == "ring" ? "forearm" : custom_human_end;
-band_facets = preset == "bangle" ? 0 : preset == "ring" ? 14 : custom_band_facets;
+band_facets = preset == "bangle" ? 0 : preset == "ring" ? 18 : custom_band_facets;
 
 Ri        = inner_d / 2;              // inner radius (constant all the way round)
 th_start  = -90 + gap_a / 2;          // right-hand end of the band (x > 0)
@@ -88,7 +88,7 @@ function smooth(u) = u * u * (3 - 2 * u);
 // side +1 = human end (th_start), -1 = robot end (th_end)
 function end_prof(side) =
     side < 0 || human_end == "bulb" ? [swell_t / 2, swell_t / 2]
-                                    : [max(band_t / 2, band_w * 0.30), band_w * 0.40];
+                                    : [max(band_t / 2, band_w * 0.32), band_w * 0.46];
 back_prof = [band_t / 2, band_w / 2];
 // Band profile at polar angle th: back profile, morphing into each end profile over swell_span
 function band_r(th) =

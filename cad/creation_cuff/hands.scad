@@ -42,8 +42,8 @@ module robot_finger(L, r, curl, gw, ft = 1, gpos = 0.5) { robot_finger_(L, r * f
 module robot_finger_(L, r, curl, gw, gpos, i) {
     if (i < len(L)) rotate([0, curl[i], 0]) {
         // knuckle pin (axis = Y) with washers
-        rotate([90, 0, 0]) cylinder(h = r[i] * 2.3, r = r[i] * 1.02, center = true);
-        rotate([90, 0, 0]) cylinder(h = r[i] * 2.7, r = r[i] * 0.55, center = true);
+        rotate([90, 0, 0]) cylinder(h = r[i] * 1.9, r = r[i] * 1.0, center = true);
+        rotate([90, 0, 0]) cylinder(h = r[i] * 2.2, r = r[i] * 0.42, center = true);
         // phalanx tube with a panel groove
         difference() {
             hull() {
@@ -73,7 +73,7 @@ module robot_finger_(L, r, curl, gw, gpos, i) {
 // ---------------------------------------------------------------------------
 module human_hand(L, wrist_r, ft = 1, curl = 1) {
     s  = L;
-    pl = 0.47 * s;  pw = 0.40 * s;  pt = 0.13 * s;   // palm length / width / thickness
+    pl = 0.47 * s;  pw = 0.42 * s;  pt = 0.155 * s;  // palm length / width / thickness
     ww = 0.26 * s;  wt = 0.17 * s;                   // wrist width / thickness
 
     // forearm blending into the band: wrist_r is a radius (round bulb) or

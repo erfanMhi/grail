@@ -95,20 +95,20 @@ openscad -o my_cuff.stl -D '$fn=48' -D 'preset="custom"' \
 | `preset` | `"bangle"` | `"ring"` | `"custom"` uses the `custom_*` values below |
 | `part` | `"assembly"` | | `"band"`, `"human_hand"`, `"robot_hand"` export one piece |
 | `custom_inner_diameter` | 62 | 17.3 | Inside diameter at the thin back of the band |
-| `custom_band_thickness` | 5 | 2.0 | Radial thickness of the band at the back |
-| `custom_band_width` | 5 | 4.2 | Axial width of the band at the back (equal to thickness for a round band) |
-| `custom_band_swell` | 8 | 3.4 | Diameter of the bulb the robot hand grows out of |
+| `custom_band_thickness` | 5 | 2.6 | Radial thickness of the band at the back |
+| `custom_band_width` | 5 | 3.6 | Axial width of the band at the back (equal to thickness for a round band) |
+| `custom_band_swell` | 8 | 3.9 | Diameter of the bulb the robot hand grows out of |
 | `custom_human_end` | `"bulb"` | `"forearm"` | Human side ends in a matching bulb, or the band tapers into the forearm |
-| `custom_band_facets` | 0 | 14 | Facets per circle for the band alone; 12–16 gives planished hammer marks, 0 uses `$fn` |
-| `custom_gap_angle` | 95° | 110° | Opening between the band ends; the hands are sized to fill it |
+| `custom_band_facets` | 0 | 18 | Facets per circle for the band alone; 14–20 gives planished hammer marks, 0 uses `$fn` |
+| `custom_gap_angle` | 95° | 108° | Opening between the band ends; the hands are sized to fill it |
 | `custom_tip_gap` | 3 | 0.8 | Space left between the two fingertips |
 | `custom_finger_thickness` | 1.0 | 1.5 | Multiplier on finger diameters, for castability at small scale |
 | `wrist_bend` | 0.55 | | 0 = hands continue the band's curve, 1 = they point straight across; the hands are lengthened so the tips still meet |
 | `hand_pitch` | 8° | | Droop of the hands below the band plane |
 | `hand_roll` | 0° | | Twist of each hand about its forearm |
-| `finger_curl` | 1.0 | | Scales how tightly the three tucked fingers curl |
+| `finger_curl` | 1.25 | | Scales how tightly the three tucked fingers curl |
 | `swell_span` | 45° | | Length of band, per side, over which it fattens into the wrist |
-| `hammer` | 0.05 | | Hammered relief on the outside of the band, as a fraction of band radius (0 = smooth) |
+| `hammer` | 0.07 | | Hammered relief on the outside of the band, as a fraction of band radius (0 = smooth) |
 | `$fn` | 28 | | Facets per circle; use 48–64 for the final export |
 
 The hands are **derived**: each one heads out along the band's tangent, bent
