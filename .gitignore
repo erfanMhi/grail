@@ -207,3 +207,13 @@ wandb/
 
 # RFC drafts (tracked separately)
 docs/rfcs/
+
+# CAD templates: implicit-model scratch renders and part test builds
+cad/creation_cuff/implicit/review/
+cad/creation_cuff/implicit/test_*.implicit.js
+cad/creation_cuff/implicit/smoke.*
+cad/creation_cuff/implicit/__cadgen__/
+
+# but keep the implicit ring part modules
+!cad/creation_cuff/implicit/parts/
+!cad/creation_cuff/implicit/parts/**

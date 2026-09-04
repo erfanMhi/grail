@@ -168,6 +168,32 @@ grows outward only, so the fit is not affected by it.
   faceted solid by nature, so bump `$fn` before doing this.
 * **3MF / OBJ**: OpenSCAD exports these directly (`-o file.3mf`).
 
+## Implicit model (smoothest version)
+
+`implicit/` holds the same ring as a signed-distance field built with the
+[text-to-cad](https://github.com/earthtojake/text-to-cad) `implicit-cad`
+skill. Every part is a smooth blend (`implicit_union_round`) of capsules,
+ellipsoids and spheres, so the surface is continuous everywhere: no boxes,
+no plates, no capsule at the wrist, and the band flows straight into each
+hand. It exports as one watertight mesh.
+
+| File | What it is |
+|---|---|
+| `implicit/parts/params.mjs` | Shared dimensions, hand placement (tangent bent toward the chord) and a small pose solver (`fingerChain`) |
+| `implicit/parts/band.mjs` | Oval-section torus arc with planished hammer marks (jittered, rotated hex lattice of dimples on the outer face) |
+| `implicit/parts/human_hand.mjs`, `robot_hand.mjs` | The two hands in a shared local frame (wrist at the origin, fingers +X, thumb +Y, back +Z) |
+| `implicit/build_model.mjs` | Assembles `creation_ring.implicit.js` (or a single-part test model) |
+| `implicit/test_part.sh` | Build, mesh and render one part or the whole ring in silver |
+| `export/creation_ring_implicit.stl`, `.3mf` | The meshed ring |
+
+```sh
+make implicit            # mesh at resolution 220 (about 0.1 mm), plus 3MF
+cd implicit && ./test_part.sh all 150   # quick build + silver renders in implicit/review/all
+```
+
+Open `implicit/creation_ring.implicit.js` in the text-to-cad CAD Viewer to
+raymarch it live; it needs no mesh.
+
 ## Matching the reference
 
 The ring preset was tuned by rendering the model in silver from the photo's

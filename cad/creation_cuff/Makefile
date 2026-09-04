@@ -69,7 +69,18 @@ $(OUT)/creation_ring_side.png: $(RING) $(LIB)
 	$(XVFB) $(OPENSCAD) -o $@ --imgsize=1600,800 --projection=o --colorscheme=Tomorrow \
 	  --camera=0,0,0,90,0,45,60 $<
 
+# --- implicit (signed-distance-field) ring: smooth, blended, one watertight mesh
+IMPL := implicit
+IMPLICIT_EXPORT := node $(HOME)/.claude/skills/implicit-cad/scripts/export.mjs
+implicit: $(OUT)/creation_ring_implicit.stl
+$(IMPL)/creation_ring.implicit.js: $(IMPL)/build_model.mjs $(IMPL)/parts/*.mjs
+	cd $(IMPL) && node build_model.mjs
+$(OUT)/creation_ring_implicit.stl: $(IMPL)/creation_ring.implicit.js
+	$(IMPLICIT_EXPORT) --input $< --stl $@ --3mf $(OUT)/creation_ring_implicit.3mf --resolution $(IRES) --max-cells 40000000
+	$(CLEAN) $@
+IRES ?= 220
+
 clean:
 	rm -f $(STLS) $(PNGS)
 
-.PHONY: all stl png clean
+.PHONY: all stl png clean implicit
