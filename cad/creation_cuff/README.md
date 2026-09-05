@@ -194,6 +194,28 @@ cd implicit && ./test_part.sh all 150   # quick build + silver renders in implic
 Open `implicit/creation_ring.implicit.js` in the text-to-cad CAD Viewer to
 raymarch it live; it needs no mesh.
 
+| Smooth ring, sterling | Four metals |
+|---|---|
+| ![smooth](export/creation_ring_implicit.png) | ![metals](export/creation_ring_metals.png) |
+
+`export/creation_ring_turntable.mp4` is a 15-second turntable of the smooth
+ring; `tools/make_video.sh` re-renders it (any model, any of the four metals).
+
+## Looking at it in 3D
+
+* **Anywhere**: the published viewer (link in the session) orbits all four
+  variants with a sterling / white gold / yellow gold / rose gold switch.
+* **Any STL viewer**: open the meshes in `export/` (Windows 3D Viewer, macOS
+  Quick Look, Blender, MeshLab, an online STL viewer).
+* **OpenSCAD**: open `creation_cuff.scad` or `creation_ring.scad`, use the
+  Customizer, press F6.
+* **text-to-cad CAD Viewer** (raymarches the implicit model live):
+  `npx skills add earthtojake/text-to-cad`, then
+  `npm --prefix ~/.claude/skills/cad-viewer/scripts/viewer run start` and open
+  `http://127.0.0.1:3245/<absolute path to>/cad/creation_cuff/implicit?file=creation_ring.implicit.js`.
+* **This viewer locally**: `tools/README.md` explains `render_stl.sh` and
+  `make_video.sh`.
+
 ## Matching the reference
 
 The ring preset was tuned by rendering the model in silver from the photo's
