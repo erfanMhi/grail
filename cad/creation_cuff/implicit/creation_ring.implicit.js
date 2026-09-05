@@ -168,130 +168,130 @@ float robot_hand_sdf(vec3 q) {
   palm = implicit_union_round(palm, sd_ellipsoid(q, vec3(2.7098, 0.0000, 0.0000), vec3(1.1855, 1.8630, 0.8045)), 0.45);
   palm = implicit_union_round(palm, sd_ellipsoid(q, vec3(2.1813, 0.0000, 0.3540), vec3(1.8697, 1.5649, 0.9653)), 0.45);
   float body = implicit_union_round(arm, palm, 0.5);
-  float fI = implicit_sphere(q, vec3(6.1186, 1.4951, -0.0079), 3.5427);
+  float fI = implicit_sphere(q, vec3(6.1186, 1.4951, -0.0079), 3.6376);
   if (fI < 0.7000) {
     float dfI = implicit_sphere(q, vec3(3.8953, 1.3786, 0.0000), 0.7201);
     float sfI0 = implicit_cone_capsule(q, vec3(3.8953, 1.3786, 0.0000), vec3(5.7214, 1.4743, 0.0639), 0.6637, 0.5950);
     dfI = implicit_union_round(dfI, sfI0, 0.1200);
     if (sfI0 < 0.5000) {
-      dfI = implicit_union_round(dfI, implicit_cylinder_capped(q, vec3(4.3123, 1.4004, 0.0146), vec3(4.6470, 1.4180, 0.0263), 0.8110), 0.0400);
-      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(4.4540, 1.4079, 0.7563), 0.2134), 0.0500);
-      dfI = implicit_union_round(dfI, implicit_cylinder_capped(q, vec3(5.0428, 1.4387, 0.0401), vec3(5.3774, 1.4563, 0.0518), 0.7836), 0.0400);
-      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(5.1854, 1.4462, 0.7544), 0.2134), 0.0500);
+      dfI = implicit_union_round(dfI, implicit_capsule(q, vec3(4.3336, 1.4016, 0.0153), vec3(4.6257, 1.4169, 0.0255), 0.8449), 0.1000);
+      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(4.4532, 1.4078, 0.7795), 0.2439), 0.0500);
+      dfI = implicit_union_round(dfI, implicit_capsule(q, vec3(5.0641, 1.4398, 0.0409), vec3(5.3561, 1.4551, 0.0511), 0.8175), 0.1000);
+      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(5.1846, 1.4462, 0.7776), 0.2439), 0.0500);
     }
     dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(5.7214, 1.4743, 0.0639), 0.6456), 0.1200);
     float sfI1 = implicit_cone_capsule(q, vec3(5.7214, 1.4743, 0.0639), vec3(6.9389, 1.5381, 0.0213), 0.5950, 0.5263);
     dfI = implicit_union_round(dfI, sfI1, 0.1200);
     if (sfI1 < 0.5000) {
-      dfI = implicit_union_round(dfI, implicit_cylinder_capped(q, vec3(5.9437, 1.4859, 0.0561), vec3(6.2783, 1.5035, 0.0444), 0.7424), 0.0400);
-      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(6.1343, 1.4959, 0.7175), 0.2134), 0.0500);
-      dfI = implicit_union_round(dfI, implicit_cylinder_capped(q, vec3(6.4306, 1.5115, 0.0391), vec3(6.7653, 1.5290, 0.0274), 0.7149), 0.0400);
-      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(6.6203, 1.5214, 0.6731), 0.2134), 0.0500);
+      dfI = implicit_union_round(dfI, implicit_capsule(q, vec3(5.9650, 1.4871, 0.0553), vec3(6.2570, 1.5024, 0.0451), 0.7763), 0.1000);
+      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(6.1351, 1.4960, 0.7407), 0.2439), 0.0500);
+      dfI = implicit_union_round(dfI, implicit_capsule(q, vec3(6.4519, 1.5126, 0.0383), vec3(6.7440, 1.5279, 0.0281), 0.7488), 0.1000);
+      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(6.6211, 1.5214, 0.6962), 0.2439), 0.0500);
     }
     dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(6.9389, 1.5381, 0.0213), 0.5711), 0.1200);
     float sfI2 = implicit_cone_capsule(q, vec3(6.9389, 1.5381, 0.0213), vec3(7.9190, 1.5895, -0.1167), 0.5263, 0.4348);
     dfI = implicit_union_round(dfI, sfI2, 0.1200);
     if (sfI2 < 0.5000) {
-      dfI = implicit_union_round(dfI, implicit_cylinder_capped(q, vec3(7.0867, 1.5458, 0.0005), vec3(7.4183, 1.5632, -0.0462), 0.6664), 0.0400);
-      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(7.3347, 1.5588, 0.5631), 0.2134), 0.0500);
-      dfI = implicit_union_round(dfI, implicit_cylinder_capped(q, vec3(7.4788, 1.5664, -0.0547), vec3(7.8104, 1.5838, -0.1014), 0.6298), 0.0400);
-      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(7.7217, 1.5791, 0.4717), 0.2134), 0.0500);
+      dfI = implicit_union_round(dfI, implicit_capsule(q, vec3(7.1078, 1.5469, -0.0025), vec3(7.3972, 1.5621, -0.0432), 0.7003), 0.1000);
+      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(7.3380, 1.5590, 0.5861), 0.2439), 0.0500);
+      dfI = implicit_union_round(dfI, implicit_capsule(q, vec3(7.4999, 1.5675, -0.0577), vec3(7.7893, 1.5827, -0.0984), 0.6637), 0.1000);
+      dfI = implicit_union_round(dfI, implicit_sphere(q, vec3(7.7249, 1.5793, 0.4947), 0.2439), 0.0500);
     }
     dfI = implicit_union_round(dfI, implicit_cone_capsule(q, vec3(7.9190, 1.5895, -0.1167), vec3(8.2099, 1.6047, -0.2043), 0.4348, 0.2313), 0.1200);
     fI = dfI;
   }
-  float fM = implicit_sphere(q, vec3(4.4150, 0.4657, -1.9098), 3.2956);
+  float fM = implicit_sphere(q, vec3(4.4150, 0.4657, -1.9098), 3.3904);
   if (fM < 0.7000) {
     float dfM = implicit_sphere(q, vec3(3.8953, 0.4657, 0.0000), 0.7201);
     float sfM0 = implicit_cone_capsule(q, vec3(3.8953, 0.4657, 0.0000), vec3(5.3799, 0.4657, -1.6258), 0.6637, 0.5950);
     dfM = implicit_union_round(dfM, sfM0, 0.1200);
     if (sfM0 < 0.5000) {
-      dfM = implicit_union_round(dfM, implicit_cylinder_capped(q, vec3(4.2573, 0.4657, -0.3965), vec3(4.4834, 0.4657, -0.6441), 0.8110), 0.0400);
-      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(4.9141, 0.4657, -0.0237), 0.2134), 0.0500);
-      dfM = implicit_union_round(dfM, implicit_cylinder_capped(q, vec3(4.8511, 0.4657, -1.0468), vec3(5.0772, 0.4657, -1.2944), 0.7836), 0.0400);
-      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(5.4877, 0.4657, -0.6926), 0.2134), 0.0500);
+      dfM = implicit_union_round(dfM, implicit_capsule(q, vec3(4.2717, 0.4657, -0.4122), vec3(4.4690, 0.4657, -0.6283), 0.8449), 0.1000);
+      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(4.9312, 0.4657, -0.0081), 0.2439), 0.0500);
+      dfM = implicit_union_round(dfM, implicit_capsule(q, vec3(4.8655, 0.4657, -1.0625), vec3(5.0628, 0.4657, -1.2787), 0.8175), 0.1000);
+      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(5.5048, 0.4657, -0.6769), 0.2439), 0.0500);
     }
     dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(5.3799, 0.4657, -1.6258), 0.6456), 0.1200);
     float sfM1 = implicit_cone_capsule(q, vec3(5.3799, 0.4657, -1.6258), vec3(4.7348, 0.4657, -2.9128), 0.5950, 0.5263);
     dfM = implicit_union_round(dfM, sfM1, 0.1200);
     if (sfM1 < 0.5000) {
-      dfM = implicit_union_round(dfM, implicit_cylinder_capped(q, vec3(5.2486, 0.4657, -1.8878), vec3(5.0983, 0.4657, -2.1876), 0.7424), 0.0400);
-      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(5.7704, 0.4657, -2.3368), 0.2134), 0.0500);
-      dfM = implicit_union_round(dfM, implicit_cylinder_capped(q, vec3(4.9906, 0.4657, -2.4026), vec3(4.8403, 0.4657, -2.7023), 0.7149), 0.0400);
-      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(5.4878, 0.4657, -2.8393), 0.2134), 0.0500);
+      dfM = implicit_union_round(dfM, implicit_capsule(q, vec3(5.2390, 0.4657, -1.9068), vec3(5.1079, 0.4657, -2.1685), 0.7763), 0.1000);
+      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(5.7911, 0.4657, -2.3472), 0.2439), 0.0500);
+      dfM = implicit_union_round(dfM, implicit_capsule(q, vec3(4.9810, 0.4657, -2.4216), vec3(4.8499, 0.4657, -2.6833), 0.7488), 0.1000);
+      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(5.5086, 0.4657, -2.8497), 0.2439), 0.0500);
     }
     dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(4.7348, 0.4657, -2.9128), 0.5711), 0.1200);
     float sfM2 = implicit_cone_capsule(q, vec3(4.7348, 0.4657, -2.9128), vec3(3.6502, 0.4657, -3.1007), 0.5263, 0.4348);
     dfM = implicit_union_round(dfM, sfM2, 0.1200);
     if (sfM2 < 0.5000) {
-      dfM = implicit_union_round(dfM, implicit_cylinder_capped(q, vec3(4.5529, 0.4657, -2.9443), vec3(4.2225, 0.4657, -3.0016), 0.6664), 0.0400);
-      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(4.4888, 0.4657, -3.5560), 0.2134), 0.0500);
-      dfM = implicit_union_round(dfM, implicit_cylinder_capped(q, vec3(4.1191, 0.4657, -3.0195), vec3(3.7887, 0.4657, -3.0767), 0.6298), 0.0400);
-      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(4.0486, 0.4657, -3.5951), 0.2134), 0.0500);
+      dfM = implicit_union_round(dfM, implicit_capsule(q, vec3(4.5319, 0.4657, -2.9480), vec3(4.2436, 0.4657, -2.9979), 0.7003), 0.1000);
+      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(4.4927, 0.4657, -3.5788), 0.2439), 0.0500);
+      dfM = implicit_union_round(dfM, implicit_capsule(q, vec3(4.0980, 0.4657, -3.0231), vec3(3.8097, 0.4657, -3.0731), 0.6637), 0.1000);
+      dfM = implicit_union_round(dfM, implicit_sphere(q, vec3(4.0526, 0.4657, -3.6179), 0.2439), 0.0500);
     }
     dfM = implicit_union_round(dfM, implicit_cone_capsule(q, vec3(3.6502, 0.4657, -3.1007), vec3(3.3460, 0.4657, -3.1065), 0.4348, 0.2313), 0.1200);
     fM = dfM;
   }
-  float fR = implicit_sphere(q, vec3(3.9236, -0.4717, -1.7274), 2.9977);
+  float fR = implicit_sphere(q, vec3(3.9236, -0.4717, -1.7274), 3.0926);
   if (fR < 0.7000) {
     float dfR = implicit_sphere(q, vec3(3.8106, -0.4657, 0.0000), 0.6705);
     float sfR0 = implicit_cone_capsule(q, vec3(3.8106, -0.4657, 0.0000), vec3(4.9124, -0.5235, -1.7068), 0.6179, 0.5607);
     dfR = implicit_union_round(dfR, sfR0, 0.1200);
     if (sfR0 < 0.5000) {
-      dfR = implicit_union_round(dfR, implicit_cylinder_capped(q, vec3(4.0723, -0.4795, -0.4054), vec3(4.2541, -0.4890, -0.6870), 0.7689), 0.0400);
-      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(4.7454, -0.5147, -0.1693), 0.2134), 0.0500);
-      dfR = implicit_union_round(dfR, implicit_cylinder_capped(q, vec3(4.5130, -0.5025, -1.0881), vec3(4.6948, -0.5121, -1.3697), 0.7461), 0.0400);
-      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(5.1669, -0.5368, -0.8644), 0.2134), 0.0500);
+      dfR = implicit_union_round(dfR, implicit_capsule(q, vec3(4.0838, -0.4801, -0.4233), vec3(4.2425, -0.4884, -0.6690), 0.8028), 0.1000);
+      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(4.7649, -0.5157, -0.1567), 0.2439), 0.0500);
+      dfR = implicit_union_round(dfR, implicit_capsule(q, vec3(4.5245, -0.5032, -1.1060), vec3(4.6832, -0.5115, -1.3518), 0.7799), 0.1000);
+      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(5.1864, -0.5378, -0.8518), 0.2439), 0.0500);
     }
     dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(4.9124, -0.5235, -1.7068), 0.6084), 0.1200);
     float sfR1 = implicit_cone_capsule(q, vec3(4.9124, -0.5235, -1.7068), vec3(3.9848, -0.4749, -2.6931), 0.5607, 0.4920);
     dfR = implicit_union_round(dfR, sfR1, 0.1200);
     if (sfR1 < 0.5000) {
-      dfR = implicit_union_round(dfR, implicit_cylinder_capped(q, vec3(4.7303, -0.5139, -1.9003), vec3(4.5008, -0.5019, -2.1445), 0.7081), 0.0400);
-      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(5.0760, -0.5321, -2.4566), 0.2134), 0.0500);
-      dfR = implicit_union_round(dfR, implicit_cylinder_capped(q, vec3(4.3593, -0.4945, -2.2949), vec3(4.1297, -0.4825, -2.5390), 0.6806), 0.0400);
-      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(4.6850, -0.5116, -2.8323), 0.2134), 0.0500);
+      dfR = implicit_union_round(dfR, implicit_capsule(q, vec3(4.7157, -0.5132, -1.9159), vec3(4.5154, -0.5027, -2.1289), 0.7419), 0.1000);
+      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(5.0929, -0.5329, -2.4725), 0.2439), 0.0500);
+      dfR = implicit_union_round(dfR, implicit_capsule(q, vec3(4.3447, -0.4937, -2.3104), vec3(4.1443, -0.4832, -2.5235), 0.7145), 0.1000);
+      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(4.7019, -0.5125, -2.8482), 0.2439), 0.0500);
     }
     dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(3.9848, -0.4749, -2.6931), 0.5339), 0.1200);
     float sfR2 = implicit_cone_capsule(q, vec3(3.9848, -0.4749, -2.6931), vec3(2.9867, -0.4226, -2.5097), 0.4920, 0.4119);
     dfR = implicit_union_round(dfR, sfR2, 0.1200);
     if (sfR2 < 0.5000) {
-      dfR = implicit_union_round(dfR, implicit_cylinder_capped(q, vec3(3.8301, -0.4668, -2.6647), vec3(3.5007, -0.4495, -2.6042), 0.6357), 0.0400);
-      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(3.5643, -0.4528, -3.1863), 0.2134), 0.0500);
-      dfR = implicit_union_round(dfR, implicit_cylinder_capped(q, vec3(3.4309, -0.4458, -2.5913), vec3(3.1015, -0.4286, -2.5308), 0.6037), 0.0400);
-      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(3.1708, -0.4322, -3.0814), 0.2134), 0.0500);
+      dfR = implicit_union_round(dfR, implicit_capsule(q, vec3(3.8091, -0.4657, -2.6608), vec3(3.5217, -0.4506, -2.6080), 0.6696), 0.1000);
+      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(3.5601, -0.4526, -3.2091), 0.2439), 0.0500);
+      dfR = implicit_union_round(dfR, implicit_capsule(q, vec3(3.4099, -0.4447, -2.5875), vec3(3.1224, -0.4297, -2.5346), 0.6376), 0.1000);
+      dfR = implicit_union_round(dfR, implicit_sphere(q, vec3(3.1666, -0.4320, -3.1042), 0.2439), 0.0500);
     }
     dfR = implicit_union_round(dfR, implicit_cone_capsule(q, vec3(2.9867, -0.4226, -2.5097), vec3(2.7148, -0.4083, -2.4152), 0.4119, 0.2191), 0.1200);
     fR = dfR;
   }
-  float fP = implicit_sphere(q, vec3(3.4024, -1.3569, -1.3253), 2.4845);
+  float fP = implicit_sphere(q, vec3(3.4024, -1.3569, -1.3253), 2.5793);
   if (fP < 0.7000) {
     float dfP = implicit_sphere(q, vec3(3.5565, -1.3786, -0.0423), 0.5960);
     float sfP0 = implicit_cone_capsule(q, vec3(3.5565, -1.3786, -0.0423), vec3(4.2185, -1.4716, -1.5058), 0.5492, 0.4920);
     dfP = implicit_union_round(dfP, sfP0, 0.1200);
     if (sfP0 < 0.5000) {
-      dfP = implicit_union_round(dfP, implicit_cylinder_capped(q, vec3(3.6994, -1.3987, -0.3581), vec3(3.8374, -1.4181, -0.6632), 0.7003), 0.0400);
-      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(4.3319, -1.4876, -0.2507), 0.2134), 0.0500);
-      dfP = implicit_union_round(dfP, implicit_cylinder_capped(q, vec3(3.9642, -1.4359, -0.9435), vec3(4.1022, -1.4553, -1.2485), 0.6774), 0.0400);
-      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(4.5761, -1.5219, -0.8456), 0.2134), 0.0500);
+      dfP = implicit_union_round(dfP, implicit_capsule(q, vec3(3.7082, -1.3999, -0.3776), vec3(3.8286, -1.4168, -0.6437), 0.7342), 0.1000);
+      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(4.3528, -1.4905, -0.2411), 0.2439), 0.0500);
+      dfP = implicit_union_round(dfP, implicit_capsule(q, vec3(3.9730, -1.4371, -0.9629), vec3(4.0934, -1.4540, -1.2291), 0.7113), 0.1000);
+      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(4.5970, -1.5248, -0.8360), 0.2439), 0.0500);
     }
     dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(4.2185, -1.4716, -1.5058), 0.5339), 0.1200);
     float sfP1 = implicit_cone_capsule(q, vec3(4.2185, -1.4716, -1.5058), vec3(3.2866, -1.3406, -2.0769), 0.4920, 0.4348);
     dfP = implicit_union_round(dfP, sfP1, 0.1200);
     if (sfP1 < 0.5000) {
-      dfP = implicit_union_round(dfP, implicit_cylinder_capped(q, vec3(4.0622, -1.4497, -1.6016), vec3(3.7784, -1.4098, -1.7755), 0.6431), 0.0400);
-      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(4.2123, -1.4707, -2.1745), 0.2134), 0.0500);
-      dfP = implicit_union_round(dfP, implicit_cylinder_capped(q, vec3(3.6895, -1.3973, -1.8300), vec3(3.4056, -1.3574, -2.0040), 0.6202), 0.0400);
-      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(3.8278, -1.4167, -2.3833), 0.2134), 0.0500);
+      dfP = implicit_union_round(dfP, implicit_capsule(q, vec3(4.0442, -1.4471, -1.6126), vec3(3.7964, -1.4123, -1.7645), 0.6769), 0.1000);
+      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(4.2242, -1.4724, -2.1943), 0.2439), 0.0500);
+      dfP = implicit_union_round(dfP, implicit_capsule(q, vec3(3.6714, -1.3947, -1.8411), vec3(3.4236, -1.3599, -1.9929), 0.6541), 0.1000);
+      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(3.8397, -1.4184, -2.4032), 0.2439), 0.0500);
     }
     dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(3.2866, -1.3406, -2.0769), 0.4718), 0.1200);
     float sfP2 = implicit_cone_capsule(q, vec3(3.2866, -1.3406, -2.0769), vec3(2.5479, -1.2368, -1.6761), 0.4348, 0.3662);
     dfP = implicit_union_round(dfP, sfP2, 0.1200);
     if (sfP2 < 0.5000) {
-      dfP = implicit_union_round(dfP, implicit_cylinder_capped(q, vec3(3.1964, -1.3280, -2.0280), vec3(2.9039, -1.2869, -1.8693), 0.5822), 0.0400);
-      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(2.8123, -1.2740, -2.3957), 0.2134), 0.0500);
-      dfP = implicit_union_round(dfP, implicit_cylinder_capped(q, vec3(2.9010, -1.2865, -1.8677), vec3(2.6085, -1.2453, -1.7090), 0.5547), 0.0400);
-      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(2.5297, -1.2343, -2.2112), 0.2134), 0.0500);
+      dfP = implicit_union_round(dfP, implicit_capsule(q, vec3(3.1778, -1.3254, -2.0179), vec3(2.9225, -1.2895, -1.8794), 0.6161), 0.1000);
+      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(2.8014, -1.2725, -2.4161), 0.2439), 0.0500);
+      dfP = implicit_union_round(dfP, implicit_capsule(q, vec3(2.8824, -1.2838, -1.8576), vec3(2.6271, -1.2480, -1.7191), 0.5886), 0.1000);
+      dfP = implicit_union_round(dfP, implicit_sphere(q, vec3(2.5188, -1.2327, -2.2316), 0.2439), 0.0500);
     }
     dfP = implicit_union_round(dfP, implicit_cone_capsule(q, vec3(2.5479, -1.2368, -1.6761), vec3(2.3453, -1.2084, -1.5219), 0.3662, 0.1948), 0.1200);
     fP = dfP;
@@ -301,25 +301,25 @@ float robot_hand_sdf(vec3 q) {
   fingers = implicit_union_round(fingers, fP, 0.0500);
   float hand = implicit_union_round(body, fingers, 0.15);
   float pivot = implicit_capsule(q, vec3(0.9281, 2.3562, -0.2413), vec3(2.4590, 1.0716, -0.2413), 0.4403);
-  float fT = implicit_sphere(q, vec3(2.7943, 2.2401, -1.1829), 3.0312);
+  float fT = implicit_sphere(q, vec3(2.7943, 2.2401, -1.1829), 3.1260);
   if (fT < 0.7000) {
     float dfT = implicit_sphere(q, vec3(1.6936, 1.7139, -0.2413), 0.8940);
     float sfT0 = implicit_cone_capsule(q, vec3(1.6936, 1.7139, -0.2413), vec3(2.9265, 2.5836, -1.1825), 0.8238, 0.7094);
     dfT = implicit_union_round(dfT, sfT0, 0.1200);
     if (sfT0 < 0.5000) {
-      dfT = implicit_union_round(dfT, implicit_cylinder_capped(q, vec3(1.9719, 1.9102, -0.4538), vec3(2.2044, 2.0742, -0.6312), 0.9566), 0.0400);
-      dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(1.9272, 2.7239, -0.0772), 0.2134), 0.0500);
-      dfT = implicit_union_round(dfT, implicit_cylinder_capped(q, vec3(2.4651, 2.2581, -0.8302), vec3(2.6976, 2.4221, -1.0077), 0.9108), 0.0400);
-      dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(2.4287, 3.0338, -0.4778), 0.2134), 0.0500);
+      dfT = implicit_union_round(dfT, implicit_capsule(q, vec3(1.9867, 1.9207, -0.4651), vec3(2.1896, 2.0638, -0.6199), 0.9905), 0.1000);
+      dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(1.9230, 2.7431, -0.0649), 0.2439), 0.0500);
+      dfT = implicit_union_round(dfT, implicit_capsule(q, vec3(2.4799, 2.2686, -0.8415), vec3(2.6828, 2.4117, -0.9964), 0.9447), 0.1000);
+      dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(2.4245, 3.0531, -0.4655), 0.2439), 0.0500);
     }
     dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(2.9265, 2.5836, -1.1825), 0.7698), 0.1200);
     float sfT1 = implicit_cone_capsule(q, vec3(2.9265, 2.5836, -1.1825), vec3(3.7627, 2.4227, -2.1250), 0.7094, 0.5721);
     dfT = implicit_union_round(dfT, sfT1, 0.1200);
     if (sfT1 < 0.5000) {
-      dfT = implicit_union_round(dfT, implicit_cylinder_capped(q, vec3(3.0837, 2.5534, -1.3596), vec3(3.3045, 2.5109, -1.6085), 0.8348), 0.0400);
-      dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(3.4100, 3.2579, -1.4165), 0.2134), 0.0500);
-      dfT = implicit_union_round(dfT, implicit_cylinder_capped(q, vec3(3.4182, 2.4890, -1.7366), vec3(3.6390, 2.4465, -1.9855), 0.7799), 0.0400);
-      dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(3.7289, 3.1411, -1.7983), 0.2134), 0.0500);
+      dfT = implicit_union_round(dfT, implicit_capsule(q, vec3(3.0978, 2.5507, -1.3755), vec3(3.2904, 2.5136, -1.5926), 0.8687), 0.1000);
+      dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(3.4166, 3.2800, -1.4144), 0.2439), 0.0500);
+      dfT = implicit_union_round(dfT, implicit_capsule(q, vec3(3.4322, 2.4863, -1.7525), vec3(3.6249, 2.4492, -1.9696), 0.8138), 0.1000);
+      dfT = implicit_union_round(dfT, implicit_sphere(q, vec3(3.7354, 3.1632, -1.7963), 0.2439), 0.0500);
     }
     dfT = implicit_union_round(dfT, implicit_cone_capsule(q, vec3(3.7627, 2.4227, -2.1250), vec3(4.0059, 2.3145, -2.4239), 0.5721, 0.3043), 0.1200);
     fT = dfT;

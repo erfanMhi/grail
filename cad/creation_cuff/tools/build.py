@@ -28,7 +28,11 @@ def ascii_to_indexed(path):
         if i is None:
             i = len(pos) // 3; verts[k] = i; pos.extend(k)
         idx.append(i)
-    return struct.pack('<%df' % len(pos), *pos), struct.pack('<%dI' % len(idx), *idx), len(idx) // 3
+    # quantize positions to uint16 over the model's bounding box (about 0.4 um steps): a third the bytes
+    lo = [min(pos[i::3]) for i in range(3)]; hi = [max(pos[i::3]) for i in range(3)]
+    span = [max(h - l, 1e-9) for l, h in zip(lo, hi)]
+    q = [int(round((v - lo[i % 3]) / span[i % 3] * 65535)) for i, v in enumerate(pos)]
+    return (struct.pack('<%dH' % len(q), *q), lo, hi), struct.pack('<%dI' % len(idx), *idx), len(idx) // 3
 
 models = {}
 ONLY = sys.argv[3].split(',') if len(sys.argv) > 3 else None
@@ -38,8 +42,9 @@ if len(sys.argv) > 4:   # KEY=path overrides
 for key, fn in FILES:
     if ONLY and key not in ONLY: continue
     pb, ib, n = ascii_to_indexed(os.path.join(SRC, fn))
-    models[key] = {'pos': base64.b64encode(pb).decode(), 'idx': base64.b64encode(ib).decode(), 'tris': n}
-    print(key, n, 'tris', (len(pb) + len(ib)) // 1024, 'KB indexed')
+    qb, lo, hi = pb
+    models[key] = {'pos': base64.b64encode(qb).decode(), 'lo': lo, 'hi': hi, 'idx': base64.b64encode(ib).decode(), 'tris': n}
+    print(key, n, 'tris', (len(qb) + len(ib)) // 1024, 'KB indexed')
 
 tpl = open(os.path.join(os.path.dirname(__file__), 'template.html')).read()
 html = tpl.replace('__MODELS_JSON__', json.dumps(models))
