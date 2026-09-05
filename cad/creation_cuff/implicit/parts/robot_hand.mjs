@@ -25,9 +25,9 @@ export function glsl(L) {
   const pl = 0.46 * s, pw = 0.44 * s, pt = 0.19 * s, ww = 0.32 * s, wt = 0.24 * s;
   const gw = 0.018 * s;                    // seam width (hands.scad)
   const kt = 0.94, kb = 1.02;              // tube / ball radius factors: joints read as subtle balls, not marbles
-  const bandH = 0.02 * s;                  // how far a ring band stands proud of the tube (about 0.17 mm)
-  const bandHalf = gw * 1.1;               // ring band half-width along the segment
-  const rivetR = gw * 1.4;                 // rivet dome radius
+  const bandH = 0.024 * s;                 // how far a ring band stands proud of the tube (about 0.2 mm)
+  const bandHalf = gw * 1.6;               // ring band half-width along the segment (about 0.5 mm wide)
+  const rivetR = gw * 1.6;                 // rivet dome radius (about 0.25 mm)
   const rMachined = 0.12, rRing = 0.04, rRivet = 0.05, rFinger = 0.05;
   const boundMargin = 0.7, detailMargin = 0.5;
 
@@ -61,8 +61,9 @@ export function glsl(L) {
       [0.32, 0.72].forEach((fr, k) => {
         const cpt = add(a, mul(sub(b, a), fr));
         const rt = (ra + (rb - ra) * fr) * kt;
-        // raised ring band: a short capped cylinder coaxial with the segment
-        acc(`implicit_cylinder_capped(q, ${vec3(sub(cpt, mul(ex, bandHalf)))}, ${vec3(add(cpt, mul(ex, bandHalf)))}, ${f(rt + bandH)})`, rRing, '      ');
+        // raised ring band: a short fat capsule coaxial with the segment (rounded
+        // edges mesh cleanly where a capped cylinder's rim would alias)
+        acc(`implicit_capsule(q, ${vec3(sub(cpt, mul(ex, bandHalf * 0.6)))}, ${vec3(add(cpt, mul(ex, bandHalf * 0.6)))}, ${f(rt + bandH)})`, rRing * 2.5, '      ');
         // rivet dome on the back of the band
         const rc = add(cpt, mul(ez, rt + bandH - rivetR * 0.35));
         acc(`implicit_sphere(q, ${vec3(rc)}, ${f(rivetR)})`, rRivet, '      ');
