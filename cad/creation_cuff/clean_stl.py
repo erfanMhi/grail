@@ -34,7 +34,24 @@ def binary_to_ascii(path):
     open(path, "w").write("".join(out))
 
 
+def write_binary(path, facets):
+    import struct
+    with open(path, "wb") as out:
+        out.write(b"\0" * 80 + struct.pack("<I", len(facets)))
+        for f in facets:
+            nums = []
+            for l in f:
+                t = l.split()
+                if t and t[0] == "facet":
+                    nums.extend(float(x) for x in t[2:5])
+                elif t and t[0] == "vertex":
+                    nums.extend(float(x) for x in t[1:4])
+            out.write(struct.pack("<12fH", *nums, 0))
+
+
 def clean(path):
+    raw_head = open(path, "rb").read(2000)
+    was_binary = not (raw_head[:5] == b"solid" and b"facet" in raw_head)
     binary_to_ascii(path)
     facets, cur, verts = [], [], {}
     for line in open(path):
@@ -70,7 +87,9 @@ def clean(path):
     keep = [f for f, ids in zip(facets, tri_ids) if size[find(ids[0])] >= MIN_VERTS]
     dropped = len(facets) - len(keep)
     shells = sum(1 for s in size.values() if s >= MIN_VERTS)
-    if dropped:
+    if was_binary:
+        write_binary(path, keep)          # keep binary files binary (much smaller)
+    elif dropped:
         with open(path, "w") as out:
             out.write("solid OpenSCAD_Model\n")
             for f in keep:
