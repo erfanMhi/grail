@@ -218,3 +218,6 @@ cad/creation_cuff/implicit/__cadgen__/
 !cad/creation_cuff/implicit/parts/
 !cad/creation_cuff/implicit/parts/**
 cad/creation_cuff/implicit/*.glb
+
+# sculpted SDF ring: compiled mesher
+cad/creation_cuff/sculpt/mesher
