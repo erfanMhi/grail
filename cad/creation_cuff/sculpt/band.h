@@ -13,6 +13,7 @@ struct Sample {
   float tex;         // weight of the carved surface
   float human;       // 1 near the human wrist (forearm anatomy)
   float psi = 0.f;   // twist of the section about the tangent (radians)
+  float fw = 0.f;    // degrees back from the human wrist
 };
 inline std::vector<Sample> S;
 inline float thH = 0, thR = 0;   // polar angles of the two band ends (deg)
@@ -48,7 +49,7 @@ inline float facets(float s, float ang, float rho, float cs, int nAround, float 
       float r2 = (eu * eu * 0.45f + ev * ev) / (rad * rad);
       float k = std::fmax(1.f - r2, 0.f);
       float dent = k * k * (0.35f + 1.1f * hash21(key + vec2(2.1f, 9.4f)));
-      acc = smax(acc, dent, 0.22f);
+      acc = smax(acc, dent, 0.50f);
     }
   return acc;
 }
@@ -136,15 +137,30 @@ inline float band(vec3 p) {
     float ang = std::atan2(xb, xn);
     float outer = sstep(-0.70f, 0.10f, xn / a);        // keep the inside smooth
     float rho = 0.5f * (a + b);
-    float big = facets(sl, ang, rho, 3.4f, 4, float(P.seed));
+    float big = facets(sl, ang, rho, 3.6f, 4, float(P.seed));
     float small = facets(sl * 1.07f + 3.3f, ang + 0.4f, rho, 1.25f, 9, float(P.seed) + 11.f);
     float m = fbm3(p * 0.30f + vec3(3.1f, 1.3f, float(P.seed)), 3);
-    // a couple of long ridges winding along the band, as if it had been twisted
+    // a soft twist winding along the band, as if the bar had been turned while hot
     float tw = std::sin(ang * 2.f - sl * 0.33f + 1.7f * fbm3(p * 0.3f + vec3(7.f), 2));
-    float ridge = -std::pow(1.f - std::fabs(tw), 6.f);
-    d += tex * outer * (P.facetDepth * (big + 0.15f * small) + P.molten * m + 0.06f * ridge);
+    d += tex * outer * (P.facetDepth * (big + 0.12f * small) + P.molten * m - 0.035f * tw);
     // the inside only undulates
     d += tex * (1.f - outer) * 0.03f * fbm3(p * 0.6f + vec3(9.f, 2.f, 4.f), 2);
+  }
+  float hw = crScalar(u, &Sample::human);
+  if (hw > 0.f && d < 0.6f) {
+    // the human forearm: muscle bellies that thin into tendons at the wrist.
+    // angle 0 = thumb side, +pi/2 = back of the arm, pi = little-finger side
+    float ang = std::atan2(xb, xn);
+    float fw = crScalar(u, &Sample::fw);
+    float belly = sstep(3.f, 14.f, fw) * sstep(52.f, 24.f, fw);
+    float tendon = sstep(0.5f, 3.f, fw) * sstep(15.f, 6.f, fw);
+    auto lobe = [&](float c, float w) { float x = std::remainder(ang - c, 2.f * PI) / w; return std::exp(-x * x); };
+    float m = 0.13f * lobe(0.85f, 0.55f) * belly          // extensors on the back, thumb side
+            + 0.09f * lobe(0.10f, 0.40f) * belly          // brachioradialis along the thumb edge
+            + 0.08f * lobe(-1.55f, 0.65f) * belly         // flexors underneath
+            - 0.05f * lobe(2.55f, 0.22f) * belly          // the ulna's edge, a soft groove
+            + 0.032f * (lobe(1.20f, 0.07f) + lobe(1.70f, 0.07f) + lobe(-1.40f, 0.08f)) * tendon;
+    d -= hw * m;
   }
   return d;
 }
@@ -164,7 +180,7 @@ inline void buildBand() {
   const float inH = thWH - thH, inR = thR - thWR;     // degrees of band inside each hand
   const int N = 420;
   S.assign(N + 1, Sample());
-  const float blendH = 48.f, blendR = 44.f;     // degrees over which the forearms leave the circle
+  const float blendH = 66.f, blendR = 62.f;     // degrees over which the forearms leave the circle
   const float RcBack = P.Ri + P.aBack;
   // polar derivatives that make the end tangents follow the forearms
   auto endSlopes = [&](vec3 e, vec3 D, float th, float& R, float& dR, float& Z, float& dZ) {
@@ -207,8 +223,8 @@ inline void buildBand() {
     S[i].C = vec3(R * std::cos(rad(th)), R * std::sin(rad(th)), Z);
     // section tapers to the wrists, then thins away inside the hands
     float fwH = fromH - inH, fwR = fromR - inR;     // degrees from each wrist (negative = inside the hand)
-    float wH = sstep(18.f, 0.f, fwH), wR = sstep(16.f, 0.f, fwR);
-    float aw = 0.128f * P.Hh, bw = 0.075f * P.Hh;   // human wrist half sizes
+    float wH = sstep(22.f, -2.f, fwH), wR = sstep(16.f, 0.f, fwR);
+    float aw = 0.112f * P.Hh, bw = 0.064f * P.Hh;   // human wrist half sizes (inside the carpus)
     float awr = 0.112f * P.Hr, bwr = 0.082f * P.Hr;
     a = mix(a, aw, wH);
     b = mix(b, bw, wH);
@@ -224,7 +240,8 @@ inline void buildBand() {
     S[i].b = b;
     S[i].asym = 1.f - std::fmax(sstep(40.f, 4.f, fwH), sstep(40.f, 4.f, fwR));
     S[i].tex = sstep(16.f, 44.f, fwH) * sstep(12.f, 42.f, fwR);
-    S[i].human = sstep(50.f, 0.f, fwH);
+    S[i].human = sstep(55.f, 0.f, fwH);
+    S[i].fw = fwH;
   }
   // tangents, frames, arc length, and the twist into each wrist
   float sacc = 0.f;

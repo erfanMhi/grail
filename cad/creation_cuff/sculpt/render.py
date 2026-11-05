@@ -322,8 +322,12 @@ def main():
             u = t - i
             u = u * u * (3 - 2 * u)
             k = [keys[i][j] * (1 - u) + keys[i + 1][j] * u for j in range(6)]
+            k[2] = k[2] * 0.001 / radius if k[2] > 2.0 else k[2]   # fill given in mm when > 2
+            fp = os.path.join(a.out, f"f{f:04d}.png")
+            if os.path.exists(fp):
+                continue      # resumable: frames already on disk are kept
             place(k[0], k[1], k[2], (k[3], k[4], k[5]), lens)
-            scene.render.filepath = os.path.join(a.out, f"f{f:04d}.png")
+            scene.render.filepath = fp
             bpy.ops.render.render(write_still=True)
         return
     if a.lens > 0:

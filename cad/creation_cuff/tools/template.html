@@ -1,4 +1,4 @@
-<title>Creation Cuff</title>
+<title>Creation Ring</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
   :root {
@@ -90,7 +90,8 @@
       <h1>Creation Ring <em>&amp; Creation Cuff</em></h1>
     </div>
     <div class="seg" role="group" aria-label="Model">
-      <button data-model="smooth" aria-pressed="true">Smooth ring · SDF</button>
+      <button data-model="sculpt" aria-pressed="true">Sculpted ring</button>
+      <button data-model="smooth" aria-pressed="false">Smooth ring · SDF v1</button>
       <button data-model="cring" aria-pressed="false">Ring · arms as band</button>
       <button data-model="bangle" aria-pressed="false">Cuff · Ø 62 mm</button>
       <button data-model="ring" aria-pressed="false">Hammered ring · US 7</button>
@@ -130,7 +131,7 @@
       </section>
       <section>
         <h2>Source</h2>
-        <p>Every dimension here is a knob in <code>cad/creation_cuff/</code> (<code>creation_ring.scad</code>, <code>creation_cuff.scad</code>, shared <code>hands.scad</code>). Change the size or the opening and the hands re-size and re-aim themselves. STL files sit in <code>export/</code>.</p>
+        <p>The sculpted ring is <code>cad/creation_cuff/sculpt/</code>: a C++ signed-distance model (<code>band.h</code>, <code>human.h</code>, <code>robot.h</code>, knobs in <code>common.h</code>), meshed and repaired by <code>make export</code>. The earlier OpenSCAD templates (<code>creation_ring.scad</code>, <code>creation_cuff.scad</code>) are kept for comparison. Files sit in <code>export/</code>.</p>
       </section>
     </aside>
   </main>
@@ -140,6 +141,12 @@
 <script>
 const MODELS = __MODELS_JSON__;
 const SPECS = {
+  sculpt: { rows: [["Inner diameter", "17.3 mm (US 7)"], ["Band at the back", "__BAND__"], ["Hands, wrist → index tip", "__HANDS__"],
+    ["Fingertip gap", "__GAP__"], ["Clearance to the finger", "__CLEAR__"], ["Weight, sterling / 18k", "__WEIGHT__"],
+    ["Modelling", "compiled signed-distance sculpture, surface-nets mesh, repaired watertight"]],
+    legend: [["Left", "robot hand: long tapered shells, beaded collars at every joint, knuckle bearing, big conical thumb with an oval hatch, carapace back plate; meets the band at one fine seam"],
+      ["Right", "human hand: anatomical skeleton, knuckles, tendons and veins on the back, nails, the thumb tucked under the reaching index, the other fingers hanging"],
+      ["Band", "carved, molten facets over a comfort-fit inside; it becomes a muscular forearm on the human side and polishes smooth into the machine on the robot side"]] },
   smooth: { rows: [["Inner diameter, back", "17.3 mm"], ["Band, hammered oval", "2.7 × 2.9 mm"], ["Opening", "116°"],
     ["Hand, wrist → index tip", "8.5 mm"], ["Fingertip gap", "0.8 mm"], ["Modelling", "signed-distance field, smooth unions"]],
     legend: [["Left", "robotic hand: ringed finger segments, ball knuckles, rivet domes, fist tucked under a domed palm"], ["Right", "human hand: fleshy forearm into the palm, relaxed fingers, thumb tucked toward the index"], ["Band", "oval section with planished hammer marks, flowing straight into both wrists"]] },
@@ -221,7 +228,7 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x2a2d33, 0.15));
 // ---- model
 const group = new THREE.Group();
 scene.add(group);
-let mesh = null, wire = null, radius = 40, current = "smooth";
+let mesh = null, wire = null, radius = 40, current = "sculpt";
 const geoms = {};
 function load(kind) {
   if (!geoms[kind]) geoms[kind] = parseMesh(MODELS[kind]);
@@ -303,6 +310,6 @@ document.querySelectorAll(".metals button").forEach(b => b.onclick = () => setMe
 document.querySelectorAll(".views .btn").forEach(b => b.onclick = () => setView(b.dataset.view));
 
 document.querySelectorAll(".seg button[data-model]").forEach(b => { if (!MODELS[b.dataset.model]) b.hidden = true; });
-load(MODELS.smooth ? "smooth" : MODELS.cring ? "cring" : Object.keys(MODELS)[0]);
+load(MODELS.sculpt ? "sculpt" : MODELS.smooth ? "smooth" : Object.keys(MODELS)[0]);
 frame();
 </script>

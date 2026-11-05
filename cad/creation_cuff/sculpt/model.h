@@ -15,22 +15,26 @@ inline mat3 handBasis(bool robot, float head, float pitch, float roll) {
   return F;
 }
 
-inline vec3 indexTipLocal(const Chain& c) {
+// The real fingertip: march out along the last bone until we leave the surface.
+template <class F>
+inline vec3 tipAlong(const Chain& c, F sdfLocal) {
   const Bone& b = c.ph[c.n - 1];
-  return b.b + b.R[0] * (b.rb * 0.95f);
+  float t = 0.f;
+  for (int i = 0; i < 600 && sdfLocal(b.b + b.R[0] * t) < 0.f; i++) t += 0.002f;
+  return b.b + b.R[0] * t;
 }
 
 inline void place() {
   const mat3 M = mat3(1, 0, 0, 0, -1, 0, 0, 0, 1);
   // human
   FH.R = handBasis(false, P.hHead, P.hPitch, P.hRoll);
-  vec3 tipH = vec3(P.tipGap * 0.5f, -P.tipY, P.tipZ);
-  FH.o = tipH - FH.R * indexTipLocal(hF[1]);
+  vec3 tipH = vec3(P.tipGap * 0.5f, -P.tipY, P.tipZ + 0.15f);   // the human tip a touch higher, as in the photo
+  FH.o = tipH - FH.R * tipAlong(hF[1], humanHandLocal);
   // robot: local -> world is R * M
   mat3 RR = handBasis(true, P.rHead, P.rPitch, P.rRoll);
   FR.R = RR * M;
   vec3 tipR = vec3(-P.tipGap * 0.5f, -P.tipY, P.tipZ);
-  FR.o = tipR - FR.R * indexTipLocal(rF[1]);
+  FR.o = tipR - FR.R * tipAlong(rF[1], robotHandLocal);
   WH = FH.o;
   WR = FR.o;
   // forearm directions (pointing from the band into the hand)
@@ -53,6 +57,7 @@ inline vec3 handBoundCenter(const Chain* F, int n, const Frame& fr, float H, flo
 
 inline void init(const std::string& which) {
   part = which;
+  applyOverrides();
   buildHuman();
   buildRobot();
   place();
@@ -69,7 +74,10 @@ inline float sdf(vec3 p) {
   if (part == "all" || part == "human") {
     float bd = length(p - hBC) - hBR;
     float dh = bd > 0.5f ? bd : humanHandLocal(FH.toLocal(p));
-    d = (part == "all") ? smin(d, dh, 0.30f) : dh;
+    // a broad blend right at the wrist so the carpus melts into the forearm,
+    // a tighter one elsewhere so the fingers never web onto the band
+    float kw = mix(0.22f, 0.10f, sstep(3.2f, 1.2f, length(p - WH)));
+    d = (part == "all") ? smin(d, dh, kw) : dh;
   }
   if (part == "all" || part == "robot") {
     float bd = length(p - rBC) - rBR;

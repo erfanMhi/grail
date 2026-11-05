@@ -221,3 +221,5 @@ cad/creation_cuff/implicit/*.glb
 
 # sculpted SDF ring: compiled mesher
 cad/creation_cuff/sculpt/mesher
+cad/creation_cuff/sculpt/clearance
+cad/creation_cuff/sculpt/build/

@@ -17,8 +17,8 @@ inline float humanPhalanx(vec3 q, const Bone& b, int seg, int nseg) {
   float pad = sdEllipsoid(l - vec3(0.50f * b.len, 0.f, -0.30f * rm), vec3(0.32f * b.len, 0.78f * rm, 0.55f * rm));
   d = smin(d, pad, 0.30f * rm);
   if (seg > 0) {
-    float kn = sdEllipsoid(l - vec3(0.02f * b.len, 0.f, 0.44f * b.ra), vec3(0.38f * b.ra, 0.70f * b.ra, 0.44f * b.ra));
-    d = smin(d, kn, 0.25f * b.ra);
+    float kn = sdEllipsoid(l - vec3(0.02f * b.len, 0.f, 0.36f * b.ra), vec3(0.42f * b.ra, 0.72f * b.ra, 0.48f * b.ra));
+    d = smin(d, kn, 0.32f * b.ra);
   }
   if (seg == nseg - 1) {
     float pulp = sdEllipsoid(l - vec3(0.62f * b.len, 0.f, -0.14f * b.rb), vec3(0.42f * b.len, 0.94f * b.rb, 0.82f * b.rb));
@@ -27,8 +27,13 @@ inline float humanPhalanx(vec3 q, const Bone& b, int seg, int nseg) {
     float xc = 0.75f * b.len;
     float outline = sdEllipse2(vec2(l.x - xc, l.y), vec2(0.48f * b.len, 0.64f * b.rb));
     outline = std::fmax(outline, -(l.z - 0.25f * b.rb));
-    float nail = smax(d - 0.022f, outline, 0.015f);
+    float nail = smax(d - 0.030f, outline, 0.012f);
     d = std::fmin(d, nail);
+    float root = sdEllipse2(vec2(l.x - xc + 0.02f * b.len, l.y), vec2(0.50f * b.len, 0.68f * b.rb));
+    float cut = std::fmax(std::fabs(root) - 0.022f, -(l.x - (xc - 0.30f * b.len)) * -1.f);
+    cut = std::fmax(cut, -(l.z - 0.35f * b.rb));
+    cut = std::fmax(cut, l.x - (xc - 0.05f * b.len));
+    d = smax(d, -std::fmax(cut, -(d + 0.03f)), 0.015f);
   }
   return d;
 }
@@ -54,7 +59,7 @@ inline float humanHandLocal(vec3 q) {
     d = (i == 0) ? dm : smin(d, dm, 0.11f * H);
   }
   // the back of the hand is a low dome; the palm a thicker pad
-  d = smin(d, sdEllipsoid(u - vec3(0.31f, 0.012f, 0.010f), vec3(0.25f, 0.175f, 0.056f)) * H, 0.05f * H);
+  d = smin(d, sdEllipsoid(u - vec3(0.31f, 0.012f, 0.010f), vec3(0.25f, 0.175f, 0.056f)) * H, 0.075f * H);
   d = smin(d, sdEllipsoid(u - vec3(0.36f, 0.015f, -0.044f), vec3(0.19f, 0.158f, 0.048f)) * H, 0.06f * H);
   // thenar eminence (the thumb's muscle) and hypothenar along the outer edge
   vec3 th = rotZ(rad(-28.f)) * (u - vec3(0.205f, 0.110f, -0.060f));
@@ -62,25 +67,39 @@ inline float humanHandLocal(vec3 q) {
   d = smin(d, sdEllipsoid(u - vec3(0.30f, -0.124f, -0.040f), vec3(0.19f, 0.050f, 0.054f)) * H, 0.06f * H);
   // carpus: the wrist is narrower and rounder than the palm
   d = smin(d, sdEllipsoid(u - vec3(0.05f, 0.0f, -0.006f), vec3(0.12f, 0.142f, 0.084f)) * H, 0.08f * H);
-  // knuckles: the metacarpal heads
+  // knuckles: the metacarpal heads, standing proud of the back of the hand
   for (int i = 0; i < 4; i++) {
     const Bone& b = hF[i + 1].ph[0];
-    float k = sdSphere(q - (b.a - b.R[0] * (0.02f * H) + b.R[2] * (0.010f * H)), 0.049f * H);
-    d = smin(d, k, 0.035f * H);
+    float k = sdSphere(q - (b.a - b.R[0] * (0.022f * H) + b.R[2] * (0.016f * H)), 0.047f * H);
+    d = smin(d, k, 0.032f * H);
   }
-  // extensor tendons, only just showing through the skin
+  // the dome's surface height, so tendons and veins can ride on it
+  auto domeZ = [](float x, float y) {
+    float t = 1.f - sq((x - 0.31f) / 0.25f) - sq((y - 0.012f) / 0.175f);
+    return 0.010f + 0.056f * std::sqrt(std::fmax(t, 0.f));
+  };
+  auto onSkin = [&](float x, float y, float lift) { return vec3(x, y, std::fmax(domeZ(x, y), 0.032f) + lift) * H; };
+  // extensor tendons fanning from the knuckles to the wrist
   for (int i = 0; i < 4; i++) {
     const Bone& b = hF[i + 1].ph[0];
-    vec3 a0 = b.a - b.R[0] * (0.07f * H) + b.R[2] * (0.038f * H);
-    vec3 a1 = vec3(0.15f, 0.025f - 0.013f * i, 0.050f) * H;
-    d = smin(d, sdCapsule(q, a0, a1, 0.0070f * H), 0.035f * H);
+    vec3 k = b.a / H;
+    float y1 = 0.030f - 0.016f * i;
+    vec3 p0 = onSkin(k.x - 0.05f, k.y, 0.004f);
+    vec3 p1 = onSkin(mix(k.x, 0.14f, 0.45f), mix(k.y, y1, 0.45f), 0.002f);
+    vec3 p2 = onSkin(0.13f, y1, 0.0f);
+    float dt = std::fmin(sdCapsule(q, p0, p1, 0.0072f * H), sdCapsule(q, p1, p2, 0.0068f * H));
+    d = smin(d, dt, 0.028f * H);
   }
-  // a dorsal vein
+  // dorsal veins: a loose arch over the metacarpals feeding toward the wrist
   {
-    vec3 v0 = vec3(0.42f, 0.105f, 0.046f) * H, v1 = vec3(0.29f, 0.050f, 0.056f) * H, v2 = vec3(0.15f, 0.070f, 0.058f) * H;
-    float dv = std::fmin(sdCapsule(q, v0, v1, 0.0075f * H), sdCapsule(q, v1, v2, 0.0075f * H));
-    d = smin(d, dv, 0.025f * H);
+    vec3 v0 = onSkin(0.45f, 0.120f, 0.001f), v1 = onSkin(0.36f, 0.070f, 0.001f), v2 = onSkin(0.27f, 0.035f, 0.001f);
+    vec3 v3 = onSkin(0.17f, 0.060f, 0.000f), w0 = onSkin(0.40f, -0.090f, 0.001f), w1 = onSkin(0.30f, -0.030f, 0.001f);
+    float dv = std::fmin(std::fmin(sdCapsule(q, v0, v1, 0.0050f * H), sdCapsule(q, v1, v2, 0.0050f * H)), sdCapsule(q, v2, v3, 0.0052f * H));
+    dv = std::fmin(dv, std::fmin(sdCapsule(q, w0, w1, 0.0045f * H), sdCapsule(q, w1, v2, 0.0046f * H)));
+    d = smin(d, dv + 0.0022f * H, 0.026f * H);
   }
+  // ulnar head: the small bony knob on the little-finger side of the wrist
+  d = smin(d, sdEllipsoid(u - vec3(0.005f, -0.112f, 0.030f), vec3(0.045f, 0.030f, 0.034f)) * H, 0.035f * H);
   // first web: the fleshy fold between thumb and index
   {
     const Bone& t1 = hF[0].ph[1];
@@ -111,10 +130,10 @@ inline void buildHuman() {
   const float H = P.Hh;
   struct F { vec3 mcp; float len, r0, r3, abd, f0, f1, f2; };
   const F f[4] = {
-      {{0.530f, 0.160f, 0.000f}, 0.392f, 0.052f, 0.040f, -16.f, 2.f, 12.f, 8.f},    // index
-      {{0.550f, 0.055f, 0.008f}, 0.430f, 0.054f, 0.041f, 0.f, 64.f, 40.f, 20.f},    // middle
-      {{0.525f, -0.048f, 0.000f}, 0.405f, 0.051f, 0.039f, 2.f, 72.f, 44.f, 22.f},   // ring
-      {{0.480f, -0.140f, -0.018f}, 0.322f, 0.045f, 0.034f, 6.f, 78.f, 46.f, 24.f}, // little
+      {{0.530f, 0.160f, 0.000f}, 0.392f, 0.064f, 0.047f, -16.f, 2.f, 12.f, 12.f},    // index
+      {{0.550f, 0.055f, 0.008f}, 0.415f, 0.064f, 0.048f, 2.f, 70.f, 36.f, 18.f},    // middle
+      {{0.525f, -0.048f, 0.000f}, 0.395f, 0.061f, 0.046f, 4.f, 74.f, 40.f, 20.f},   // ring
+      {{0.480f, -0.140f, -0.018f}, 0.315f, 0.054f, 0.041f, 8.f, 78.f, 44.f, 22.f}, // little
   };
   for (int i = 0; i < 4; i++) {
     float L = f[i].len * H;
@@ -126,9 +145,9 @@ inline void buildHuman() {
   }
   // thumb by its joints: CMC at the wrist, forward and under the index,
   // nail facing out to the thumb side
-  hF[0] = chainPts({vec3(0.080f, 0.100f, -0.035f) * H, vec3(0.285f, 0.200f, -0.095f) * H,
-                    vec3(0.425f, 0.190f, -0.150f) * H, vec3(0.525f, 0.150f, -0.195f) * H},
-                   normalize(vec3(0.10f, 0.80f, 0.45f)), {0.054f * H, 0.050f * H, 0.045f * H, 0.039f * H});
+  hF[0] = chainPts({vec3(0.080f, 0.100f, -0.035f) * H, vec3(0.290f, 0.205f, -0.100f) * H,
+                    vec3(0.465f, 0.205f, -0.165f) * H, vec3(0.590f, 0.165f, -0.215f) * H},
+                   normalize(vec3(0.05f, 0.85f, 0.30f)), {0.064f * H, 0.062f * H, 0.056f * H, 0.048f * H});
   for (int i = 0; i < 5; i++) hF[i].bound(0.05f);
 }
 

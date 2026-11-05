@@ -12,6 +12,7 @@
 #pragma once
 #include "sdf.h"
 
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -25,22 +26,49 @@ struct Params {
   // hands
   float Hh = 9.8f;             // human hand length (wrist to middle fingertip)
   float Hr = 10.9f;             // robot hand length
-  float tipGap = 0.70f;        // between the two index fingertips
-  float tipY = 10.9f;         // fingertips sit this far in front of the axis
+  float tipGap = 0.45f;        // between the two index fingertips
+  float tipY = 12.5f;         // fingertips sit this far in front of the axis
   float tipZ = -1.35f;         // and this far below the band's mid-plane
   // hand orientation: heading toward the front, pitch down, roll of the back
   // of the hand toward the viewer (degrees)
-  float hHead = 26.f, hPitch = 7.f, hRoll = 12.f;
-  float rHead = 24.f, rPitch = 7.f, rRoll = 12.f;
+  float hHead = 26.f, hPitch = 7.f, hRoll = 4.f;
+  float rHead = 24.f, rPitch = 7.f, rRoll = 4.f;
   // wrist: flexion (hand bends palm-ward) and ulnar deviation (degrees)
   float hWristFlex = 14.f, hWristDev = 10.f;
   float rWristFlex = 10.f, rWristDev = 8.f;
   // surface
-  float facetDepth = 0.19f;   // carved facets on the band
-  float molten = 0.15f;       // low-frequency undulation
+  float facetDepth = 0.17f;   // carved facets on the band
+  float molten = 0.12f;       // low-frequency undulation
   int seed = 7;
 };
 inline Params P;
+
+// Override parameters from the environment for quick studies, e.g.
+//   RING_PARAMS="rRoll=-4,hRoll=-4,Hh=9.6" ./mesher ...
+inline void applyOverrides() {
+  const char* s = std::getenv("RING_PARAMS");
+  if (!s) return;
+  struct E { const char* n; float* v; };
+  E tab[] = {{"Ri", &P.Ri}, {"aBack", &P.aBack}, {"bBack", &P.bBack}, {"aArm", &P.aArm}, {"bArm", &P.bArm},
+             {"Hh", &P.Hh}, {"Hr", &P.Hr}, {"tipGap", &P.tipGap}, {"tipY", &P.tipY}, {"tipZ", &P.tipZ},
+             {"hHead", &P.hHead}, {"hPitch", &P.hPitch}, {"hRoll", &P.hRoll},
+             {"rHead", &P.rHead}, {"rPitch", &P.rPitch}, {"rRoll", &P.rRoll},
+             {"hWristFlex", &P.hWristFlex}, {"hWristDev", &P.hWristDev},
+             {"rWristFlex", &P.rWristFlex}, {"rWristDev", &P.rWristDev},
+             {"facetDepth", &P.facetDepth}, {"molten", &P.molten}};
+  std::string all(s);
+  size_t pos = 0;
+  while (pos < all.size()) {
+    size_t comma = all.find(',', pos);
+    std::string kv = all.substr(pos, comma == std::string::npos ? std::string::npos : comma - pos);
+    size_t eq = kv.find('=');
+    if (eq != std::string::npos)
+      for (auto& e : tab)
+        if (kv.substr(0, eq) == e.n) *e.v = std::strtof(kv.c_str() + eq + 1, nullptr);
+    if (comma == std::string::npos) break;
+    pos = comma + 1;
+  }
+}
 
 struct Bone {
   vec3 a, b;     // joint centres
