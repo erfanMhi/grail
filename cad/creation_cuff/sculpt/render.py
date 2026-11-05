@@ -308,8 +308,6 @@ def main():
     if a.target:
         tgt = tuple(float(v) for v in a.target.split(","))
     tgt_mm = tgt if any(abs(t) > 1e-9 for t in tgt) else None
-    if a.blend:
-        bpy.ops.wm.save_as_mainfile(filepath=a.blend)
 
     if a.frames > 0:
         # keyframed orbit: list of az:el:fill:tx:ty:tz
@@ -317,11 +315,18 @@ def main():
         os.makedirs(a.out, exist_ok=True)
         n = a.frames
         for f in range(n):
-            t = f / (n - 1) * (len(keys) - 1)
+            # Catmull-Rom through the keys: the camera keeps moving through
+            # each key instead of stopping, with an ease at the very ends
+            g = f / (n - 1)
+            g = g * g * (3 - 2 * g) * 0.15 + g * 0.85
+            t = g * (len(keys) - 1)
             i = min(int(t), len(keys) - 2)
             u = t - i
-            u = u * u * (3 - 2 * u)
-            k = [keys[i][j] * (1 - u) + keys[i + 1][j] * u for j in range(6)]
+            K = lambda m: keys[max(0, min(len(keys) - 1, m))]
+            k = []
+            for j in range(6):
+                p0, p1, p2, p3 = K(i - 1)[j], K(i)[j], K(i + 1)[j], K(i + 2)[j]
+                k.append(0.5 * (2 * p1 + (-p0 + p2) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u * u + (-p0 + 3 * p1 - 3 * p2 + p3) * u ** 3))
             k[2] = k[2] * 0.001 / radius if k[2] > 2.0 else k[2]   # fill given in mm when > 2
             fp = os.path.join(a.out, f"f{f:04d}.png")
             if os.path.exists(fp):
@@ -347,6 +352,8 @@ def main():
             bpy.ops.render.render(write_still=True)
         return
     place(az, el, fill, tgt_mm, lens)
+    if a.blend:   # the whole studio, camera included, to open in Blender
+        bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(a.blend))
     scene.render.filepath = a.out
     bpy.ops.render.render(write_still=True)
 

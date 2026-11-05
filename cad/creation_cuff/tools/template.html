@@ -1,4 +1,4 @@
-<title>Creation Ring</title>
+<title>Creation Cuff</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
   :root {
@@ -17,12 +17,14 @@
       --ground: #14171b; --surface: #1c2025; --ink: #e7eaee; --muted: #8f99a5;
       --line: #2d333b; --accent: #c9a24a; --accent-ink: #e2c273; --canvas-bg: #1a1e23;
       --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+      color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
     --ground: #14171b; --surface: #1c2025; --ink: #e7eaee; --muted: #8f99a5;
     --line: #2d333b; --accent: #c9a24a; --accent-ink: #e2c273; --canvas-bg: #1a1e23;
     --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   body {
@@ -91,7 +93,6 @@
     </div>
     <div class="seg" role="group" aria-label="Model">
       <button data-model="sculpt" aria-pressed="true">Sculpted ring</button>
-      <button data-model="smooth" aria-pressed="false">Smooth ring · SDF v1</button>
       <button data-model="cring" aria-pressed="false">Ring · arms as band</button>
       <button data-model="bangle" aria-pressed="false">Cuff · Ø 62 mm</button>
       <button data-model="ring" aria-pressed="false">Hammered ring · US 7</button>
@@ -141,8 +142,8 @@
 <script>
 const MODELS = __MODELS_JSON__;
 const SPECS = {
-  sculpt: { rows: [["Inner diameter", "17.3 mm (US 7)"], ["Band at the back", "__BAND__"], ["Hands, wrist → index tip", "__HANDS__"],
-    ["Fingertip gap", "__GAP__"], ["Clearance to the finger", "__CLEAR__"], ["Weight, sterling / 18k", "__WEIGHT__"],
+  sculpt: { rows: [["Inner diameter", "17.3 mm (US 7)"], ["Band at the back", "2.3 × 3.2 mm, carved"], ["Hands, wrist → index tip", "robot 10.2 mm, human 9.2 mm"],
+    ["Fingertip gap", "0.47 mm"], ["Clearance to the finger", "≥ 0.46 mm (nothing touches the skin)"], ["Weight, sterling / 18k", "4.1 g / 6.1 g"],
     ["Modelling", "compiled signed-distance sculpture, surface-nets mesh, repaired watertight"]],
     legend: [["Left", "robot hand: long tapered shells, beaded collars at every joint, knuckle bearing, big conical thumb with an oval hatch, carapace back plate; meets the band at one fine seam"],
       ["Right", "human hand: anatomical skeleton, knuckles, tendons and veins on the back, nails, the thumb tucked under the reaching index, the other fingers hanging"],

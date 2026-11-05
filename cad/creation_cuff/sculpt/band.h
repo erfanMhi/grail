@@ -27,14 +27,20 @@ inline float section(float xn, float xb, float a, float b, float asym) {
 }
 
 // carved facets: soft scoops on a jittered lattice in (arc length, perimeter),
-// each one elongated, tilted and as deep as its own hash says
+// each one elongated, tilted and as deep as its own hash says. The scoops are
+// capped so that every one that can reach a point lies in the 5x5 cells
+// searched around it -- otherwise a scoop is clipped at a cell boundary and
+// leaves a hairline crease in the polish.
 inline float facets(float s, float ang, float rho, float cs, int nAround, float seed) {
   float cv = 2.f * PI / nAround;             // cell in angle
+  float cellMin = std::fmin(cs, cv * rho);
+  const float el = 0.45f;                    // long axis = rad / sqrt(el)
+  float radCap = 1.85f * cellMin * std::sqrt(el);
   float u = s / cs, v = ang / cv;
   vec2 iu = vec2(std::floor(u), std::floor(v));
   float acc = 0.f;
-  for (int j = -1; j <= 1; j++)
-    for (int i = -1; i <= 1; i++) {
+  for (int j = -2; j <= 2; j++)
+    for (int i = -2; i <= 2; i++) {
       vec2 cell = iu + vec2(float(i), float(j));
       float wrapped = std::fmod(cell.y + 1000.f * nAround, (float)nAround);
       vec2 key = vec2(cell.x, wrapped) + vec2(seed * 3.1f, seed * 0.7f);
@@ -45,8 +51,8 @@ inline float facets(float s, float ang, float rho, float cs, int nAround, float 
       float rot = (hash21(key + vec2(8.8f, 3.3f)) - 0.5f) * 1.6f;
       float cr = std::cos(rot), sr = std::sin(rot);
       float eu = du * cr - dv * sr, ev = du * sr + dv * cr;
-      float rad = cs * (0.55f + 0.45f * h);
-      float r2 = (eu * eu * 0.45f + ev * ev) / (rad * rad);
+      float rad = std::fmin(cs * (0.55f + 0.45f * h), radCap);
+      float r2 = (eu * eu * el + ev * ev) / (rad * rad);
       float k = std::fmax(1.f - r2, 0.f);
       float dent = k * k * (0.35f + 1.1f * hash21(key + vec2(2.1f, 9.4f)));
       acc = smax(acc, dent, 0.50f);

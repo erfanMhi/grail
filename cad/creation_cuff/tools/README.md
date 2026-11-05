@@ -8,7 +8,8 @@ npm install                      # playwright + three (three.js r128 is served l
 npx playwright install chromium  # once
 pip install pillow imageio-ffmpeg
 
-python3 build.py ../export viewer.html            # the interactive silver viewer (all three models)
+python3 build.py ../export viewer.html            # the interactive viewer: sculpted ring first, then the templates
+# (the sculpted ring loads from sculpt/build/creation_ring_sculpted_view.stl, a 320k-triangle copy of the export)
 ./render_stl.sh ../export/creation_ring_implicit.stl out/    # PNGs of one mesh from the standard angles
 ./make_video.sh viewer.html ring.mp4 ring yellow 15 30       # 15 s turntable, yellow gold
 python3 compare.py photo.png out/photo.png compare.png       # side by side with a reference photo

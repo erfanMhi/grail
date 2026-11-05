@@ -89,3 +89,9 @@ clean:
 	rm -f $(STLS) $(PNGS)
 
 .PHONY: all stl png clean implicit
+
+# the sculpted ring (compiled SDF): see sculpt/Makefile
+sculpt:
+	$(MAKE) -C sculpt export check
+
+.PHONY: sculpt

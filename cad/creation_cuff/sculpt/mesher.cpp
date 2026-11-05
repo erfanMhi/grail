@@ -155,6 +155,22 @@ int main(int argc, char** argv) {
     nrm[n] = gl > 1e-12f ? g / gl : vec3(0, 0, 1);
   }
   std::fprintf(stderr, "pass 2: %zu vertices, %.1fs\n", nv, now() - t1);
+  {
+    // vertices the Newton step could not put on the surface (spikes, specks)
+    long long bad = 0;
+    float worst = 0.f;
+    vec3 wp(0.f);
+#pragma omp parallel for reduction(+ : bad)
+    for (int64_t n = 0; n < (int64_t)nv; n++) {
+      float e = std::fabs(model::sdf(pos[n]));
+      if (e > 0.25f * h) {
+        bad++;
+#pragma omp critical
+        if (e > worst) { worst = e; wp = pos[n]; }
+      }
+    }
+    std::fprintf(stderr, "off-surface vertices: %lld (worst %.4f mm at %.2f %.2f %.2f)\n", bad, worst, wp.x, wp.y, wp.z);
+  }
 
   auto idx = [&](uint64_t key) -> uint32_t { return (uint32_t)(std::lower_bound(keys.begin(), keys.end(), key) - keys.begin()); };
   std::vector<uint32_t> tri;

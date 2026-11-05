@@ -99,7 +99,7 @@ inline float humanHandLocal(vec3 q) {
     d = smin(d, dv + 0.0022f * H, 0.026f * H);
   }
   // ulnar head: the small bony knob on the little-finger side of the wrist
-  d = smin(d, sdEllipsoid(u - vec3(0.005f, -0.112f, 0.030f), vec3(0.045f, 0.030f, 0.034f)) * H, 0.035f * H);
+  d = smin(d, sdEllipsoid(u - vec3(0.005f, -0.108f, 0.020f), vec3(0.050f, 0.030f, 0.032f)) * H, 0.05f * H);
   // first web: the fleshy fold between thumb and index
   {
     const Bone& t1 = hF[0].ph[1];

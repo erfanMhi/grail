@@ -1,8 +1,75 @@
-# Creation Cuff & Creation Ring — parametric CAD templates
+# Creation Ring — sculpted, plus the parametric CAD templates
 
-Two pieces built from the same pair of hands: a **segmented robotic left hand**
-and an **organic human right hand** reaching for each other, index fingers
-almost touching — the *Creation of Adam* gesture.
+A silver open ring in the *Creation of Adam* gesture: the band is two
+forearms that meet behind the finger; a **robot left hand** and a **human
+right hand** reach across the opening, index fingertips half a millimetre
+apart.
+
+![sculpted ring, sterling](export/creation_ring_sculpted.png)
+
+## Sculpted ring (current design) — `sculpt/`
+
+Rebuilt from first principles as one signed-distance sculpture compiled in
+C++, then meshed, repaired and decimated into casting files.
+
+| | |
+|---|---|
+| **Fit** | 17.3 mm inside (US 7), comfort-fit inner wall; nothing comes within 0.46 mm of the finger (checked by `sculpt/clearance`) |
+| **Band** | 2.3 × 3.2 mm at the back, swelling into forearms; carved, molten facets outside, smooth inside |
+| **Robot hand** (left, 10.2 mm wrist → index tip) | four lengthwise back plates that run on into the index; tapered finger shells with raised, beaded collars; knuckle bearing; conical three-segment thumb with a recessed hatch; one fine seam where it leaves the band — no cuff, no capsule |
+| **Human hand** (right, 9.2 mm) | built on an anatomical skeleton: knuckles, tendons and veins on the back, nails, thumb tucked under the reaching index, the other fingers hanging; the band becomes a muscular forearm on this side |
+| **Fingertips** | 0.47 mm apart, the human tip a touch higher, as in the reference |
+| **Weight** | 393.5 mm³ → 4.1 g sterling, 6.1 g 18k gold |
+| **Casting** | one watertight, manifold shell; grooves ≥ 0.12 mm wide, beads ≈ 0.2 mm |
+| **Files** | `export/creation_ring_sculpted.stl` (900k triangles), `export/creation_ring_sculpted.3mf` |
+
+| Photo angle | Low front | Top (down the finger) |
+|---|---|---|
+| ![photo](export/creation_ring_sculpted.png) | ![low](export/creation_ring_sculpted_low.png) | ![top](export/creation_ring_sculpted_top.png) |
+
+| Robot hand | Human hand | Behind |
+|---|---|---|
+| ![robot](export/creation_ring_sculpted_robot.png) | ![human](export/creation_ring_sculpted_human.png) | ![back](export/creation_ring_sculpted_back.png) |
+
+| Four metals | Against the reference |
+|---|---|
+| ![metals](export/creation_ring_sculpted_metals.png) | ![compare](export/creation_ring_sculpted_vs_reference.png) |
+
+`export/creation_ring_sculpted_turntable.mp4` is a 15-second Cycles
+turntable.
+
+### How it is built
+
+| File | What it does |
+|---|---|
+| `sculpt/common.h` | Every knob: ring size, band section, hand sizes, where the fingertips meet, hand heading/pitch/roll, wrist bend, facet depth. Any of them can be overridden for a study: `RING_PARAMS="Hh=10,tipGap=0.6" ./mesher ...` |
+| `sculpt/band.h` | The band: a Catmull-Rom sweep (Newton foot-point, so the polish has no seams) whose section is a comfort-fit superellipse; two-scale carved facets and a soft hot-twist; muscle bellies and wrist tendons on the human forearm; rounded ends that sit inside the wrists |
+| `sculpt/human.h` | The human hand: phalanges with pads, knuckles and nails on a forward-kinematics skeleton; palm, thenar, hypothenar, tendons and veins riding on the back of the hand |
+| `sculpt/robot.h` | The robot hand on the same skeleton: back plates, finger shells, beaded collars, bearing cap, conical thumb |
+| `sculpt/model.h` | Places both hands so the measured fingertips meet, blends everything, keeps the bore clear |
+| `sculpt/mesher.cpp` | Block-sparse surface nets with Newton projection onto the true surface (no `-ffast-math`: it breaks `fmod`/`atan2` consistency and plants spikes) |
+| `sculpt/finish_mesh.py` | Keeps the main shell, repairs it with MeshFix, decimates (quadric) to the target, writes STL / 3MF / PLY |
+| `sculpt/clearance.cpp`, `check_mesh.py` | Bore clearance; shells, open and non-manifold edges, volume and weight |
+| `sculpt/render.py` | Blender Cycles studio renders (satin sterling with an antique patina in the recesses, four metals, clay mode for judging form, resumable turntables) |
+
+```sh
+cd cad/creation_cuff/sculpt
+make                       # build the mesher and the clearance check
+make export H=0.022        # mesh at 0.022 mm voxels -> repaired, decimated STL + 3MF
+make check                 # bore clearance + mesh sanity
+make renders               # hero render of the exported mesh
+```
+
+Needs a C++17 compiler with OpenMP and GLM headers (`apt install libglm-dev`),
+and for export/renders a Python with `numpy pymeshfix fast-simplification`
+and Blender's `bpy` module (`pip install bpy`).
+
+The design was iterated against the reference photo with camera-matched
+renders and one independent design review; the review's findings (robot hand
+reading as a fist, thin human digits, foil-like band creases, too-wide
+fingertip gap, uncastable hairline detail) are all addressed in this version.
+
+## Earlier parametric templates
 
 * **Creation Ring** (`creation_ring.scad`) — a rounded-square ring whose band
   is the two forearms: flat and engraved inside, muscular outside, crossing at
@@ -203,18 +270,19 @@ ring; `tools/make_video.sh` re-renders it (any model, any of the four metals).
 
 ## Looking at it in 3D
 
-* **Anywhere**: the published viewer (link in the session) orbits all four
-  variants with a sterling / white gold / yellow gold / rose gold switch.
-* **Any STL viewer**: open the meshes in `export/` (Windows 3D Viewer, macOS
-  Quick Look, Blender, MeshLab, an online STL viewer).
-* **OpenSCAD**: open `creation_cuff.scad` or `creation_ring.scad`, use the
-  Customizer, press F6.
-* **text-to-cad CAD Viewer** (raymarches the implicit model live):
-  `npx skills add earthtojake/text-to-cad`, then
-  `npm --prefix ~/.claude/skills/cad-viewer/scripts/viewer run start` and open
-  `http://127.0.0.1:3245/<absolute path to>/cad/creation_cuff/implicit?file=creation_ring.implicit.js`.
-* **This viewer locally**: `tools/README.md` explains `render_stl.sh` and
-  `make_video.sh`.
+* **Anywhere**: the published viewer (link in the session) orbits the
+  sculpted ring and the earlier variants, with a sterling / white gold /
+  yellow gold / rose gold switch and photo, top, front and hand views.
+* **Any STL / 3MF viewer**: open `export/creation_ring_sculpted.stl` or
+  `.3mf` (Windows 3D Viewer, macOS Quick Look / Preview, Blender, MeshLab,
+  PrusaSlicer, an online STL viewer).
+* **Blender**: `sculpt/render.py` builds the same studio, camera and silver
+  material used for the renders here; pass `--blend scene.blend` to save the
+  scene and orbit it yourself.
+* **OpenSCAD**: the earlier templates (`creation_cuff.scad`,
+  `creation_ring.scad`) open in the Customizer; press F6.
+* **This viewer locally**: `tools/README.md` explains `build.py`,
+  `render_stl.sh` and `make_video.sh`.
 
 ## Matching the reference
 
