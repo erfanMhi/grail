@@ -21,7 +21,7 @@ METALS = {
     # base colour (linear), roughness
     "silver": ((0.962, 0.949, 0.922), 0.20),
     "white": ((0.913, 0.901, 0.858), 0.19),
-    "yellow": ((0.944, 0.776, 0.373), 0.20),
+    "yellow": ((1.000, 0.700, 0.270), 0.20),
     "rose": ((0.930, 0.660, 0.540), 0.20),
 }
 
@@ -284,6 +284,9 @@ def main():
         tgt = Vector(target_mm) * 0.001 if target_mm is not None else c
         cam_d.lens = lens
         fov = 2 * math.atan(cam_d.sensor_width / 2 / lens)
+        aspect = scene.render.resolution_y / scene.render.resolution_x
+        if aspect < 1:   # landscape: the vertical field is the tighter one
+            fov = 2 * math.atan(math.tan(fov / 2) * aspect)
         rad = radius * fill
         dist = rad / math.tan(fov / 2) * 1.05
         azr, elr = math.radians(az), math.radians(el)

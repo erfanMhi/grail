@@ -5,7 +5,7 @@ forearms that meet behind the finger; a **robot left hand** and a **human
 right hand** reach across the opening, index fingertips half a millimetre
 apart.
 
-![sculpted ring, sterling](export/creation_ring_sculpted.png)
+![sculpted ring, sterling](export/creation_ring_sculpted.jpg)
 
 ## Sculpted ring (current design) — `sculpt/`
 
@@ -25,15 +25,15 @@ C++, then meshed, repaired and decimated into casting files.
 
 | Photo angle | Low front | Top (down the finger) |
 |---|---|---|
-| ![photo](export/creation_ring_sculpted.png) | ![low](export/creation_ring_sculpted_low.png) | ![top](export/creation_ring_sculpted_top.png) |
+| ![photo](export/creation_ring_sculpted.jpg) | ![low](export/creation_ring_sculpted_low.jpg) | ![top](export/creation_ring_sculpted_top.jpg) |
 
 | Robot hand | Human hand | Behind |
 |---|---|---|
-| ![robot](export/creation_ring_sculpted_robot.png) | ![human](export/creation_ring_sculpted_human.png) | ![back](export/creation_ring_sculpted_back.png) |
+| ![robot](export/creation_ring_sculpted_robot.jpg) | ![human](export/creation_ring_sculpted_human.jpg) | ![back](export/creation_ring_sculpted_back.jpg) |
 
-| Four metals | Against the reference |
-|---|---|
-| ![metals](export/creation_ring_sculpted_metals.png) | ![compare](export/creation_ring_sculpted_vs_reference.png) |
+| Four metals |
+|---|
+| ![metals](export/creation_ring_sculpted_metals.jpg) |
 
 `export/creation_ring_sculpted_turntable.mp4` is a 15-second Cycles
 turntable.
