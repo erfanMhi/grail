@@ -19,7 +19,11 @@
 namespace model {
 
 struct Params {
-  float Ri = 8.65f;            // inner radius (US 7, 17.3 mm)
+  // The ring is drawn at Ri (US 7, 17.3 mm) and then scaled as a whole to the
+  // wearer's US size (model.h: sizeScale), so every proportion, clearance and
+  // casting detail holds at any size. All other lengths here are design mm.
+  float Ri = 8.65f;            // inner radius of the design
+  float usSize = 11.f;         // finished US ring size (20.57 mm inside)
   // band section half-sizes: a = radial, b = axial
   float aBack = 1.15f, bBack = 1.58f;     // at the back of the ring
   float aArm = 1.50f, bArm = 1.72f;       // where the band swells into forearms
@@ -49,7 +53,7 @@ inline void applyOverrides() {
   const char* s = std::getenv("RING_PARAMS");
   if (!s) return;
   struct E { const char* n; float* v; };
-  E tab[] = {{"Ri", &P.Ri}, {"aBack", &P.aBack}, {"bBack", &P.bBack}, {"aArm", &P.aArm}, {"bArm", &P.bArm},
+  E tab[] = {{"Ri", &P.Ri}, {"usSize", &P.usSize}, {"aBack", &P.aBack}, {"bBack", &P.bBack}, {"aArm", &P.aArm}, {"bArm", &P.bArm},
              {"Hh", &P.Hh}, {"Hr", &P.Hr}, {"tipGap", &P.tipGap}, {"tipY", &P.tipY}, {"tipZ", &P.tipZ},
              {"hHead", &P.hHead}, {"hPitch", &P.hPitch}, {"hRoll", &P.hRoll},
              {"rHead", &P.rHead}, {"rPitch", &P.rPitch}, {"rRoll", &P.rRoll},
@@ -144,5 +148,6 @@ inline Chain hF[5], rF[5];           // human / robot fingers: 0 thumb, 1 index 
 inline vec3 hBC, rBC;                // hand bounding spheres (world)
 inline float hBR = 0, rBR = 0;
 inline std::string part = "all";
+inline float ringScale = 1.f;        // design mm -> finished mm (set by init)
 
 }  // namespace model

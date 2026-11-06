@@ -1,11 +1,13 @@
 // Bore clearance: how close do the hands come to the wearer's finger?
-// Samples the hand SDFs on cylinders r = Ri + c and reports the worst c that
-// still intersects a hand (0 = touching the skin).
+// Samples the hand SDFs on cylinders r = Ri + c (design mm) and reports the
+// worst c that still intersects a hand (0 = touching the skin), converted to
+// finished mm at the ring's US size.
 #include "model.h"
 #include <cstdio>
 using namespace model;
 int main() {
   init("all");
+  std::printf("US %.2f: bore %.2f mm\n", P.usSize, usInsideDiameter(P.usSize));
   for (int hand = 0; hand < 2; hand++) {
     float worst = 1e9f;
     vec3 at(0.f);
@@ -18,7 +20,8 @@ int main() {
           if (d < 0.f && worst > 1e8f) { worst = c; at = p; }
         }
     }
+    at *= ringScale;
     std::printf("%s: deepest point %.2f mm %s the bore surface (at %.2f %.2f %.2f)\n", hand == 0 ? "human" : "robot",
-                std::fabs(worst), worst < 0 ? "INSIDE" : "outside", at.x, at.y, at.z);
+                std::fabs(worst) * ringScale, worst < 0 ? "INSIDE" : "outside", at.x, at.y, at.z);
   }
 }

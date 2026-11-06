@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
   std::string ply, stl, part = "all";
   vec3 lo(-15.5f, -17.0f, -7.0f), hi(15.5f, 13.5f, 5.0f);
   float lip = 1.6f;  // safety factor on the distance bound for block culling
+  bool box = false;
   for (int i = 1; i < argc; i++) {
     std::string a = argv[i];
     if (a == "--h") h = std::atof(argv[++i]);
@@ -39,11 +40,14 @@ int main(int argc, char** argv) {
     else if (a == "--stl") stl = argv[++i];
     else if (a == "--part") part = argv[++i];
     else if (a == "--lip") lip = std::atof(argv[++i]);
-    else if (a == "--box") { lo.x = std::atof(argv[++i]); lo.y = std::atof(argv[++i]); lo.z = std::atof(argv[++i]);
+    else if (a == "--box") { box = true; lo.x = std::atof(argv[++i]); lo.y = std::atof(argv[++i]); lo.z = std::atof(argv[++i]);
                              hi.x = std::atof(argv[++i]); hi.y = std::atof(argv[++i]); hi.z = std::atof(argv[++i]); }
     else { std::fprintf(stderr, "unknown arg %s\n", a.c_str()); return 2; }
   }
   model::init(part);
+  if (!box) { lo *= model::ringScale; hi *= model::ringScale; }   // the default box fits the design size
+  std::fprintf(stderr, "US %.2f: bore %.3f mm, design scale %.5f\n", model::P.usSize,
+               model::usInsideDiameter(model::P.usSize), model::ringScale);
   const int B = 16;
   const int64_t Nx = (int64_t)std::ceil((hi.x - lo.x) / h), Ny = (int64_t)std::ceil((hi.y - lo.y) / h), Nz = (int64_t)std::ceil((hi.z - lo.z) / h);
   const int64_t Bx = (Nx + B - 1) / B, By = (Ny + B - 1) / B, Bz = (Nz + B - 1) / B;

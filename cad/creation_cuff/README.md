@@ -14,13 +14,13 @@ C++, then meshed, repaired and decimated into casting files.
 
 | | |
 |---|---|
-| **Fit** | 17.3 mm inside (US 7), comfort-fit inner wall; nothing comes within 0.46 mm of the finger (checked by `sculpt/clearance`) |
-| **Band** | 2.3 × 3.2 mm at the back, swelling into forearms; carved, molten facets outside, smooth inside |
-| **Robot hand** (left, 10.2 mm wrist → index tip) | four lengthwise back plates that run on into the index; tapered finger shells with raised, beaded collars; knuckle bearing; conical three-segment thumb with a recessed hatch; one fine seam where it leaves the band — no cuff, no capsule |
-| **Human hand** (right, 9.2 mm) | built on an anatomical skeleton: knuckles, tendons and veins on the back, nails, thumb tucked under the reaching index, the other fingers hanging; the band becomes a muscular forearm on this side |
-| **Fingertips** | 0.47 mm apart, the human tip a touch higher, as in the reference |
-| **Weight** | 393.5 mm³ → 4.1 g sterling, 6.1 g 18k gold |
-| **Casting** | one watertight, manifold shell; grooves ≥ 0.12 mm wide, beads ≈ 0.2 mm |
+| **Fit** | 20.57 mm inside (US 11), comfort-fit inner wall; nothing comes within 0.55 mm of the finger (checked by `sculpt/clearance`). Other sizes: see *Sizing* below |
+| **Band** | 2.7 × 3.8 mm at the back, swelling into forearms; carved, molten facets outside, smooth inside |
+| **Robot hand** (left, 12.1 mm wrist → index tip) | four lengthwise back plates that run on into the index; tapered finger shells with raised, beaded collars; knuckle bearing; conical three-segment thumb with a recessed hatch; one fine seam where it leaves the band — no cuff, no capsule |
+| **Human hand** (right, 11.0 mm) | built on an anatomical skeleton: knuckles, tendons and veins on the back, nails, thumb tucked under the reaching index, the other fingers hanging; the band becomes a muscular forearm on this side |
+| **Fingertips** | 0.56 mm apart, the human tip a touch higher, as in the reference |
+| **Weight** | 664 mm³ → 6.9 g sterling, 10.4 g 18k gold |
+| **Casting** | one watertight, manifold shell; grooves ≥ 0.14 mm wide, beads ≈ 0.24 mm |
 | **Files** | `export/creation_ring_sculpted.stl` (900k triangles), `export/creation_ring_sculpted.3mf` |
 
 | Photo angle | Low front | Top (down the finger) |
@@ -36,7 +36,20 @@ C++, then meshed, repaired and decimated into casting files.
 | ![metals](export/creation_ring_sculpted_metals.jpg) |
 
 `export/creation_ring_sculpted_turntable.mp4` is a 15-second Cycles
-turntable.
+turntable, and `export/creation_ring_sculpted_story.png` the four metals as a
+1080 × 1920 story frame.
+
+### Sizing
+
+The ring is drawn around a US 7 bore and then scaled as a whole to
+`usSize` in `sculpt/common.h` (default US 11, 20.57 mm inside), so the
+proportions, the clearance to the finger and every casting detail are the
+same at any size; only the weight changes (about 0.5 g of sterling per size).
+For another size:
+
+```sh
+RING_PARAMS="usSize=10.5" make -B export    # US 10½, 20.17 mm inside
+```
 
 ### How it is built
 

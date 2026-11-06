@@ -55,6 +55,14 @@ inline vec3 handBoundCenter(const Chain* F, int n, const Frame& fr, float H, flo
   return fr.toWorld((lo + hi) * 0.5f);
 }
 
+// US ring size -> inside diameter in mm (the standard chart: 7 = 17.32, 11 = 20.57)
+inline float usInsideDiameter(float size) { return 11.63f + 0.8128f * size; }
+
+// Design -> finished scale. The bore is cut at Ri - 0.02 and the rounding of
+// that cut leaves the narrowest point 0.008 mm further out (measured on the
+// mesh: 8.638 mm at Ri = 8.65), so the finished bore is exactly the US size.
+inline float sizeScale() { return usInsideDiameter(P.usSize) / (2.f * (P.Ri - 0.012f)); }
+
 inline void init(const std::string& which) {
   part = which;
   applyOverrides();
@@ -64,9 +72,11 @@ inline void init(const std::string& which) {
   buildBand();
   hBC = handBoundCenter(hF, 5, FH, P.Hh, hBR);
   rBC = handBoundCenter(rF, 5, FR, P.Hr, rBR);
+  ringScale = sizeScale();
 }
 
-inline float sdf(vec3 p) {
+// the ring as designed, in design mm
+inline float designSdf(vec3 p) {
   if (part == "humanL") return humanHandLocal(p);
   if (part == "robotL") return robotHandLocal(p);
   float d = 1e9f;
@@ -87,6 +97,9 @@ inline float sdf(vec3 p) {
   if (part == "all") d = smax(d, (P.Ri - 0.02f) - len2(vec2(p.x, p.y)), 0.15f);  // keep the bore clear
   return d;
 }
+
+// the finished ring at the wearer's size, in mm (an exact uniform scaling)
+inline float sdf(vec3 p) { return ringScale * designSdf(p / ringScale); }
 
 inline vec3 grad(vec3 p, float e) {
   const vec3 k0(1, -1, -1), k1(-1, -1, 1), k2(-1, 1, -1), k3(1, 1, 1);
