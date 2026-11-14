@@ -111,24 +111,71 @@ oxidised patina in the recesses? It has fine detail (0.14 mm grooves,
 it take? I can send the file right away.
 ```
 
-## 5. If you buy a printer
+## 5. Printer for robotics parts
 
-For robotics parts you want an **FDM** (filament) printer. Resin is for fine
-detail. These prices are from the official stores on 2026-11-06.
+Bambu prices were read off Bambu's US store on 2026-11-14, during its Black
+Friday sale. Buy from Bambu's Canadian store (ca.store.bambulab.com), which
+prices in CAD.
 
-| Printer | Price | Why |
+**Recommendation: Bambu Lab H2D with the AMS.**
+
+Robot parts need nylon carbon-fibre, PC and ASA, and those warp unless the
+chamber is actively heated. The H2D:
+
+- has a **65 °C heated chamber** and **350 °C nozzles**;
+- has **two nozzles**: a soft and a rigid material in one part (e.g. a TPU
+  pad on a PETG-CF gripper), or supports that come off cleanly in gearbox
+  housings;
+- prints **350 × 320 × 325 mm**, enough for arm links and chassis plates in
+  one piece;
+- takes an optional 10 W/40 W laser and cutting module, for acrylic or
+  plywood plates.
+
+| Printer | Price | Verdict |
 |---|---|---|
-| **Bambu Lab P2S** | US$549 (US store; Canadian price differs) | Best all-rounder for robotics: enclosed, fast, reliable, huge ecosystem. Add the AMS for multi-material |
-| Bambu Lab H2D | US$1,549 | Serious engineering: two nozzles (e.g. TPU + PETG, soluble supports), large build volume |
-| Bambu Lab H2S | US$1,199 | Large single-nozzle version |
-| **Elegoo Centauri Carbon 2** | C$499, Combo C$599 (Elegoo CA store) | Budget pick: enclosed and carbon-fibre ready |
-| Prusa Core One+ | C$2,199.99 (RepRap Warehouse) | Open-source, very reliable, premium |
-| Elegoo Mars 5 Ultra + Mercury Plus wash/cure | C$499 bundle (Elegoo CA store) | For jewellery detail later (resin, 18 µm) |
-| Elegoo Saturn 4 Ultra 16K | C$669, C$799 with wash/cure | Bigger resin printer, 14×19 µm |
+| **Bambu Lab H2D** | US$1,399; AMS Combo US$1,599; Laser Full Combo US$1,949 (normally 1,549 / 1,749 / 2,149) | **The pick.** Two nozzles, heated chamber, large, best ecosystem |
+| Bambu Lab H2C | from US$1,899 (normally 2,199) | H2D plus fast automatic nozzle swaps for many materials. Extra cost, little gain for robotics |
+| Bambu Lab P2S | US$449; Combo US$649 (normally 549 / 749) | Hardened steel, 300 °C, 50 °C chamber, 256 mm cube. Fine for PETG-CF and ASA; nylon is harder. The budget Bambu |
+| Qidi Q2 | about US$449 (pre-sale) | Value pick: 65 °C heated chamber, 370 °C, hardened, 270 × 270 × 256 mm. Single nozzle, smaller ecosystem |
+| Qidi Plus4 | about US$699 | Same chamber and temperatures, larger (305 × 305 × 280 mm) |
+| Prusa Core One+ | about C$1,760–2,250 (retailers) | Open-source and repairable, but 55 °C chamber and 290 °C |
 
-Store pages:
-- https://us.store.bambulab.com/collections/3d-printer
-- https://ca.elegoo.com/products/centauri-carbon-2
-- https://ca.elegoo.com/products/mars-5-ultra-with-mercury-plus-v2-0-bundle
-- https://ca.elegoo.com/products/saturn-4-ultra-16k-10inch-monochrome-lcd-resin-3d-printer
-- https://www.reprapwarehouse.com/collections/2024-prusa-fdm/products/prusa-core-one
+### Filament for robot parts
+
+Prices are from Bambu's Canadian store unless noted.
+
+| Material | Price per kg | Use |
+|---|---|---|
+| PETG-CF | from C$40.99 | Everyday brackets and plates: stiff and easy to print |
+| PA6-CF / PAHT-CF (nylon carbon-fibre) | about C$55–120 | Gears and parts under load or heat. **Must be dried** |
+| ASA | C$38.99 | Housings and outdoor parts (UV-stable) |
+| PC | C$50.99 | Tough, heat-resistant parts |
+| TPU 95A HF | C$53.99 | Grippers, wheels, bumpers |
+
+- **Drying:** nylon needs about 70–80 °C before printing. Get Bambu's AMS HT
+  (sold as an H2D bundle) or a stand-alone dryer such as the Creality Space Pi
+  X4 (US$179, up to 85 °C).
+- **Bench extras:** brass heat-set inserts (M2–M5) with a soldering-iron tip,
+  digital calipers, an M3 screw kit, bearings.
+- **Outsource the final parts:** JLC3DP (the ring quote site above) also does
+  MJF nylon and metal printing, and its sister service JLCCNC machines
+  aluminium. Use those for parts too strong or hot for filament (motor mounts,
+  shafts).
+
+Sources:
+- https://us.store.bambulab.com/products/h2d
+- https://us.store.bambulab.com/products/p2s
+- https://ca.store.bambulab.com/en/collections/fiber-reinforced
+- https://us.qidi3d.com/collections/3d-printers/products/qidi-q2
+- https://www.3djake.com/qidi-tech/plus4
+- https://spool3d.ca/original-prusa/
+- https://www.bestbuy.com/product/creality-space-pi-x4-dryer-space-grey/CZT3ZRXKWS
+
+### Resin, for jewellery later
+
+| Printer | Price |
+|---|---|
+| Elegoo Mars 5 Ultra with Mercury Plus wash/cure | C$499 bundle |
+| Elegoo Saturn 4 Ultra 16K | C$669 |
+
+Source: https://ca.elegoo.com
